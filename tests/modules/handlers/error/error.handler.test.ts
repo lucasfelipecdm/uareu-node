@@ -13,7 +13,7 @@ test('Error handler code unknown', () => {
 });
 
 test('Error handler string', () => {
-    const throwError = () => new ErrorHandler('This message need to comeback on throw.');
+    const throwError = () => new ErrorHandler('This message need to comeback in throw.');
     expect(throwError)
-        .toThrow('This message need to comeback on throw.');
+        .toThrow('This message need to comeback in throw.');
 });
