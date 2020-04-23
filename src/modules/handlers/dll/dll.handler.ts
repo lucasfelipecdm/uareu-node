@@ -3,9 +3,9 @@ import * as ffi from 'ffi-napi';
 import * as ref from 'ref-napi';
 
 export default class DllHandler {
-    public static loadDpfppdFrom = (path: any) => new Promise((resolve, reject) => {
+    public static loadDpfppdFrom = (path?: string) => new Promise<any>((resolve, reject) => {
         try {
-            resolve(ffi.Library(path, {
+            resolve(ffi.Library(path ?? 'bin/dpfpdd', {
                 'dpfpdd_version': [ref.types.int, ['pointer']],
                 'dpfpdd_init': [ref.types.int, []],
                 'dpfpdd_exit': [ref.types.int, []],
@@ -33,9 +33,9 @@ export default class DllHandler {
         }
     });
 
-    public static loadDpfjFrom = (path: any) => new Promise((resolve, reject) => {
+    public static loadDpfjFrom = (path?: string) => new Promise<any>((resolve, reject) => {
         try {
-            resolve(ffi.Library(path, {
+            resolve(ffi.Library(path ?? 'bin/dpfj', {
                 'dpfj_version': [ref.types.int, ['pointer']],
                 'dpfj_select_engine': [ref.types.int, [DPFJ_DEV.type, DPFJ_ENGINE_TYPE.type]],
                 'dpfj_create_fmd_from_raw': [ref.types.int, ['pointer', ref.types.int, ref.types.int, ref.types.int, ref.types.int, DPFJ_FINGER_POSITION.type, ref.types.int, DPFJ_FMD_FORMAT.type, 'pointer', 'pointer']],
