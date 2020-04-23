@@ -1,9 +1,9 @@
 import ErrorHandler from '../../../../src/modules/handlers/error/error.handler';
 
-test('Error handler code 0x0a', () => {
-    const throwError = () => new ErrorHandler(0x0a);
+test('Error handler code 00a', () => {
+    const throwError = () => new ErrorHandler(96075796);
     expect(throwError)
-        .toThrow('API call is not implemented.');
+        .toThrow('One or more parameters passed to the API call are invalid.');
 });
 
 test('Error handler code unknown', () => {
