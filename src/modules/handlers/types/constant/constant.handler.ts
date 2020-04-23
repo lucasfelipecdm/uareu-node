@@ -1,5 +1,6 @@
 import * as ref from 'ref-napi';
 
+export const DPFPDD_SUCCESS: number = 0;
 export const MAX_STR_LENGTH: number = 128;
 export const MAX_DEVICE_NAME_LENGTH: number = 1024;
 export const DPFJ_PROBABILITY_ONE: number = 0x7fffffff;
