@@ -1,5 +1,11 @@
-export const sayHello = (): string => {
-    return 'Hello';
-};
+import UareU from './modules';
 
-sayHello();
+const uareu = UareU.getInstance();
+
+uareu.loadLibs().then(() => {
+    return uareu.dpfpddInit();
+}).then((res) => {
+    console.log(res);
+}).catch((err) => {
+    console.log(err);
+});
