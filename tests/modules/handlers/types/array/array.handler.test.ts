@@ -1,6 +1,7 @@
-import { CharArray, UCharArray, IntArray, UIntArray } from '../../../../../src/modules/handlers/types/array/array.handler';
+import { CharArray, UCharArray, IntArray, UIntArray, genericArrayFrom } from '../../../../../src/modules/handlers/types/array/array.handler';
 import { MAX_STR_LENGTH } from '../../../../../src/modules/handlers/types/constant/constant.handler';
 import * as ref from 'ref-napi';
+import { dpfpdd_dev_info } from '../../../../../src/modules/handlers/types/struct/struct.handler';
 
 test('Create CharArray using MAX_STR_LENGTH', () => {
     const array = CharArray(MAX_STR_LENGTH);
@@ -24,4 +25,9 @@ test('Create UIntArray using MAX_STR_LENGTH', () => {
     const array = UIntArray(1);
     expect(array.size).toBe(ref.types.uint.size);
     expect(array.type).toBe(ref.types.uint);
+});
+
+test('Create genericArrayFrom dpfpdd_dev_info with size 2', () => {
+    const array = genericArrayFrom(dpfpdd_dev_info, 2);
+    expect(array.length).toBe(2904);
 });
