@@ -1,10 +1,12 @@
 import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import * as ref from 'ref-napi';
-import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps } from "./handlers/types/struct/struct.handler";
+import * as ffi from 'ffi-napi';
+import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
+import { DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFPDD_LED_ID } from "./handlers/types/constant/constant.handler";
 import QueryDevices from "./interfaces/query-devices.interface";
-import { DPFPDD_DEV, DPFPDD_PRIORITY } from "./handlers/types/constant/constant.handler";
+import CaptureCallback from "./interfaces/capture-callback.interface";
 
 export default class UareU {
     private static instance: UareU;
@@ -57,9 +59,17 @@ export default class UareU {
     });
 
     public dpfpddQueryDevices = () => new Promise<QueryDevices>((resolve, reject) => {
+        // Max number of readers to return;
         const MAX_DEVICE_NUMBER = 5;
+
+        // Get size to each buffer info to slice the arraybuffer
+        const devInfo = new dpfpdd_dev_info;
+        const devInfoSize = devInfo.ref().buffer.byteLength;
         const dev_infos = genericArrayFrom(dpfpdd_dev_info, MAX_DEVICE_NUMBER);
+
+        // Set device count to max device number
         const devCnt = Buffer.alloc(ref.types.uint.size, MAX_DEVICE_NUMBER);
+
         const res = UareU.dpfpdd.dpfpdd_query_devices(devCnt, dev_infos);
         if (res === 0) {
             const deviceList: QueryDevices = {
@@ -67,7 +77,7 @@ export default class UareU {
                 devicesList: [],
             }
             for (let i: number = 1; i <= devCnt.readInt8(); i++) {
-                const device = new dpfpdd_dev_info(ref.reinterpret(dev_infos, 1452, ((i - 1) * 1452)));
+                const device = new dpfpdd_dev_info(ref.reinterpret(dev_infos, devInfoSize, ((i - 1) * devInfoSize)));
                 deviceList.devicesList.push(device);
             }
             resolve(deviceList);
@@ -137,4 +147,165 @@ export default class UareU {
             }
         }
     });
+
+    public dpfpddCapture = (
+        reader: any,
+        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
+        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED,
+        timeout: number = 5000,
+    ) => new Promise<any>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+            const IMAGE_DATA_SIZE = 2048;
+            const captureResult = new dpfpdd_capture_result;
+            const captureParam = new dpfpdd_capture_param;
+            const imgSize = ref.alloc(ref.types.uint, IMAGE_DATA_SIZE);
+            const imgData = Buffer.alloc(IMAGE_DATA_SIZE);
+            captureParam.size = captureParam.ref().buffer.byteLength;
+            captureParam.image_fmt = imageFmt;
+            captureParam.image_proc = imageProc;
+            captureParam.image_res = ref.deref(readerCaps).resolutions[0];
+            const res = UareU.dpfpdd.dpfpdd_capture(reader, captureParam.ref(), timeout, captureResult.ref(), imgSize, imgData);
+            if (res === 0) {
+                resolve(res);
+            } else {
+                reject(new ErrorHandler(res));
+            }
+        }).catch((err) => {
+            reject(err);
+        })
+    });
+
+    public dpfpddCaptureAsync = (
+        reader: any,
+        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
+        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED,
+        callback: CaptureCallback
+    ) => new Promise<any>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+            const context = ref.alloc('void *');
+            const captureParam = new dpfpdd_capture_param;
+            captureParam.size = captureParam.ref().buffer.byteLength;
+            captureParam.image_fmt = imageFmt;
+            captureParam.image_proc = imageProc;
+            captureParam.image_res = ref.deref(readerCaps).resolutions[0];
+            const CaptureCallback = ffi.Callback('void', ['pointer', 'int', 'int', 'pointer'], callback);
+            const res = UareU.dpfpdd.dpfpdd_capture_async(reader, captureParam.ref(), context, CaptureCallback);
+            if (res === 0) {
+                resolve(res);
+            } else {
+                reject(new ErrorHandler(res));
+            }
+        }).catch((err) => {
+            reject(err);
+        })
+    });
+
+    public dpfpddCancel = (reader: any) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_cancel(reader);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddStartStream = (reader: any) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_start_stream(reader);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddStopStream = (reader: any) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_stop_stream(reader);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddGetStreamImage = (
+        reader: any,
+        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
+        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED
+    ) => new Promise<any>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+            const IMAGE_DATA_SIZE = 2048;
+            const captureResult = new dpfpdd_capture_result;
+            const captureParam = new dpfpdd_capture_param;
+            const imgSize = ref.alloc(ref.types.uint, IMAGE_DATA_SIZE);
+            const imgData = Buffer.alloc(IMAGE_DATA_SIZE);
+            captureParam.size = captureParam.ref().buffer.byteLength;
+            captureParam.image_fmt = imageFmt;
+            captureParam.image_proc = imageProc;
+            captureParam.image_res = ref.deref(readerCaps).resolutions[0];
+            const res = UareU.dpfpdd.dpfpdd_get_stream_image(reader, captureParam.ref(), captureResult.ref(), imgSize, imgData);
+            if (res === 0) {
+                resolve(res);
+            } else {
+                reject(new ErrorHandler(res));
+            }
+        }).catch((err) => {
+            reject(err);
+        })
+    });
+
+    public dpfpddReset = (reader: any) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_reset(reader);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddCalibrate = (reader: any) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_calibrate(reader);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddLedConfig = (reader: any, ledId: number, ledMode: number) => new Promise<any>((resolve, reject) => {
+        const reserved = ref.alloc('void *');
+        const res = UareU.dpfpdd.dpfpdd_led_config(reader, ledId, ledMode, reserved);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddLedCtrl = (reader: any, ledId: number, ledCmd: number) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_led_ctrl(reader, ledId, ledCmd);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddSetParameter = (reader: any, parmId: number, buffer: Buffer) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_set_parameter(reader, parmId, buffer.length, buffer);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfpddGetParameter = (reader: any, parmId: number, buffer: Buffer) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_get_parameter(reader, parmId, buffer.length, buffer);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
 };
