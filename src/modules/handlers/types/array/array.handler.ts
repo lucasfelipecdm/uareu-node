@@ -8,3 +8,10 @@ export const UCharArray = (length: number) => ArrayType(ref.types.uchar, length)
 export const IntArray = (length: number) => ArrayType(ref.types.int, length);
 
 export const UIntArray = (length: number) => ArrayType(ref.types.uint, length);
+
+export const genericArrayFrom = (type: any, length: number) => {
+    const arrayType = ArrayType(type);
+    const array = new arrayType(length);
+
+    return array.buffer;
+}
