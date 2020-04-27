@@ -2,11 +2,12 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import * as ref from 'ref-napi';
 import * as ffi from 'ffi-napi';
-import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result } from "./handlers/types/struct/struct.handler";
+import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0 } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFPDD_LED_ID } from "./handlers/types/constant/constant.handler";
+import { DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFPDD_LED_ID, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE } from "./handlers/types/constant/constant.handler";
 import QueryDevices from "./interfaces/query-devices.interface";
 import CaptureCallback from "./interfaces/capture-callback.interface";
+import FmdFromFid from "./interfaces/fmd-from-fid.interface";
 
 export default class UareU {
     private static instance: UareU;
@@ -308,4 +309,46 @@ export default class UareU {
         }
     });
 
+    public dpfjVersion = () => new Promise<any>((resolve, reject) => {
+        const ver = ref.alloc(dpfj_version);
+        const res = UareU.dpfj.dpfj_version(ver);
+        if (res === 0) {
+            resolve(ver);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjSelectEngine = (reader: any, engine: typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_DPFJ | typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_DPFJ7 | typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_INNOVATRICS_ANSIISO) => new Promise<any>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_select_engine(reader, engine);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    // public dpfjCreateFmdFromRaw = (imageData: any,
+    //     fmdType: typeof DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004 | typeof DPFJ_FMD_FORMAT.DPFJ_FMD_ISO_19794_2_2005,
+    //     ) => new Promise<any>((resolve, reject) => {
+    //         const ver = ref.alloc(dpfj_version);
+    //         const res = UareU.dpfpdd.dpfj_create_fmd_from_raw(ver);
+    //         if (res === 0) {
+    //             resolve(ver);
+    //         } else {
+    //             reject(new ErrorHandler(res));
+    //         }
+    //     });
+
+    public dpfjCreateFmdFromFid = (imageData: any, imageSize: number, fmdType: typeof DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004 | typeof DPFJ_FMD_FORMAT.DPFJ_FMD_ISO_19794_2_2005) => new Promise<FmdFromFid>((resolve, reject) => {
+        const image = new dpfpdd_capture_callback_data_0(ref.reinterpret(imageData, imageSize));
+        const fmd = Buffer.alloc(MAX_FMD_SIZE);
+        const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+        const res = UareU.dpfj.dpfj_create_fmd_from_fid(image.capture_parm.image_fmt, image.image_data, image.image_size, fmdType, fmd, fmdSize);
+        if (res === 0) {
+            resolve({ size: ref.deref(fmdSize), data: fmd });
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 };

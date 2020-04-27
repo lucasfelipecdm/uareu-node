@@ -1,6 +1,6 @@
 import UareU from './modules';
 import * as ref from 'ref-napi';
-import { DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC } from './modules/handlers/types/constant/constant.handler';
+import { DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_FMD_FORMAT } from './modules/handlers/types/constant/constant.handler';
 
 const uareu = UareU.getInstance();
 let reader: any;
@@ -12,14 +12,18 @@ uareu.loadLibs().then(() => {
     return uareu.dpfpddOpen(res.devicesList[0]);
 }).then((res) => {
     reader = res;
-    // return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, (context, reserved, dataSize, data) => {
-    //     console.log(context);
-    //     console.log(reserved);
-    //     console.log(dataSize);
-    //     console.log(data);
-    // });
+    return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, (context, reserved, dataSize, data) => {
+        uareu.dpfjCreateFmdFromFid(data, dataSize, DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004).then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        });
+    });
 }).then((res) => {
-    return uareu.dpfpddCalibrate(reader);
+    const TEMPO = 20;
+    setTimeout(() => {
+        console.log(`Deu ${TEMPO} seg`);
+    }, 1000 * TEMPO);
 }).then((res) => {
     console.log(res);
 }).catch((err) => {

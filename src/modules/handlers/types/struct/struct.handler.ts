@@ -116,8 +116,8 @@ export const dpfpdd_capture_callback_data_0 = Struct({
     error: ref.types.int,
     capture_parm: dpfpdd_capture_param,
     capture_result: dpfpdd_capture_result,
-    image_size: ref.types.int,
-    image_data: ref.types.char
+    image_size: ref.types.uint,
+    image_data: 'char *'
 });
 
 export const dpfpdd_iomap = Struct({
