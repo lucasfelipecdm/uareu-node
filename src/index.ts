@@ -15,23 +15,28 @@ uareu.loadLibs().then(() => {
     return uareu.dpfpddOpen(res.devicesList[0]);
 }).then((res) => {
     reader = res;
+    uareu.dpfjStartEnrollment(DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004).then((res) => console.log('Init enrollment.'));
     return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, (context, reserved, dataSize, data) => {
         uareu.dpfjCreateFmdFromFid(data, dataSize, DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004).then((res) => {
-            if (!fmd1) {
-                console.log('First FMD save');
-                fmd1 = res;
-            } else {
-                console.log('Comparing the fmds');
-                return uareu.dpfjCompare(fmd1, res);
-            }
+            return uareu.dpfjAddToEnrollment(res);
         }).then((res) => {
-            console.log(res);
+            if (res === 0) {
+                console.log('FMD enrollment finish.');
+                return uareu.dpfjCreateEnrollmentFmd();
+            } else {
+                console.log('Press the same finger again.');
+                return 1
+            };
+        }).then((res) => {
+            if (res === 0) return uareu.dpfjFinishEnrollment();
+        }).then((res) => {
+            console.log('Finish enrollment.');
         }).catch((err) => {
             console.log(err);
         });
     });
 }).then((res) => {
-    const TEMPO = 20;
+    const TEMPO = 60;
     setTimeout(() => {
         console.log(`Deu ${TEMPO} seg`);
     }, 1000 * TEMPO);

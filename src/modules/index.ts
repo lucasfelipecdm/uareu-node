@@ -385,4 +385,45 @@ export default class UareU {
             reject(new ErrorHandler(res));
         }
     });
+
+    public dpfjStartEnrollment = (fmdType: number) => new Promise<number>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_start_enrollment(fmdType);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjAddToEnrollment = (fmd: Fmd) => new Promise<number>((resolve, reject) => {
+        console.log(fmd);
+        const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.fmdType, fmd.data, fmd.size, 0);
+        //get required size for the capabilities structure
+        const errorCode = res.toString(16).slice(-3);
+        if (res === 0 || errorCode === '00d') {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjCreateEnrollmentFmd = () => new Promise<any>((resolve, reject) => {
+        const fmd = Buffer.alloc(MAX_FMD_SIZE);
+        const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+        const res = UareU.dpfj.dpfj_create_enrollment_fmd(fmd, fmdSize);
+        if (res === 0) {
+            resolve(fmd);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjFinishEnrollment = () => new Promise<number>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_finish_enrollment();
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 };
