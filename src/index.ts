@@ -29,8 +29,9 @@ uareu.loadLibs().then(() => {
             };
         }).then((res) => {
             if (res === 0) return uareu.dpfjFinishEnrollment();
+            else return 1;
         }).then((res) => {
-            console.log('Finish enrollment.');
+            if (res === 0) console.log('Finish enrollment.');
         }).catch((err) => {
             console.log(err);
         });

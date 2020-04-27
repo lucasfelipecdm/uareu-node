@@ -2,7 +2,7 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import * as ref from 'ref-napi';
 import * as ffi from 'ffi-napi';
-import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate } from "./handlers/types/struct/struct.handler";
+import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
 import { DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFPDD_LED_ID, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE } from "./handlers/types/constant/constant.handler";
 import QueryDevices from "./interfaces/query-devices.interface";
@@ -396,9 +396,7 @@ export default class UareU {
     });
 
     public dpfjAddToEnrollment = (fmd: Fmd) => new Promise<number>((resolve, reject) => {
-        console.log(fmd);
         const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.fmdType, fmd.data, fmd.size, 0);
-        //get required size for the capabilities structure
         const errorCode = res.toString(16).slice(-3);
         if (res === 0 || errorCode === '00d') {
             resolve(res);
@@ -422,6 +420,129 @@ export default class UareU {
         const res = UareU.dpfj.dpfj_finish_enrollment();
         if (res === 0) {
             resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjFmdConvert = (fmd: Fmd, toFormat: number) => new Promise<Fmd>((resolve, reject) => {
+        const fmdOut = Buffer.alloc(MAX_FMD_SIZE);
+        const fmdOutSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+        const res = UareU.dpfj.dpfj_fmd_convert(fmd.fmdType, fmd.data, fmd.size, toFormat, fmdOut, fmdOutSize);
+        if (res === 0) {
+            resolve({ size: ref.deref(fmdOutSize), fmdType: toFormat, data: fmdOut });
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    // public dpfjDpFidConvert = () => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_dp_fid_convert();
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
+
+    // public dpfjRawConvert = () => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_raw_convert();
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
+
+    public dpfjGetFidRecordParams = (fidType: number, fid: any) => new Promise<void>((resolve, reject) => {
+        const params = new dpfj_fid_record_params;
+        const res = UareU.dpfj.dpfj_get_fid_record_params(fidType, fid, params.ref());
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjSetFidRecordParams = (fidType: number, fid: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_set_fid_record_params(params, fidType, fid);
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjGetFidViewOffset = (fidType: number, fid: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_get_fid_view_offset(fidType, fid, viewIndex);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjGetFidViewParams = (fidView: any) => new Promise<void>((resolve, reject) => {
+        const params = new dpfj_fid_view_params;
+        const res = UareU.dpfj.dpfj_get_fid_view_params(fidView, params.ref());
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjSetFidViewParams = (fidView: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_set_fid_view_params(params, fidView);
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjGetFmdRecordParams = (fmdType: number, fmd: Fmd) => new Promise<void>((resolve, reject) => {
+        const params = new dpfj_fmd_record_params;
+        const res = UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.data, params.ref());
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjSetFmdRecordParams = (fmdType: number, fmd: Fmd, params: Buffer) => new Promise<void>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_set_fmd_record_params(params, fmdType, fmd.data);
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjGetFmdViewOffset = (fmdType: number, fmd: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_get_fmd_view_offset(fmdType, fmd.data, viewIndex);
+        if (res === 0) {
+            resolve(res);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjGetFmdViewParams = (fmd: any) => new Promise<void>((resolve, reject) => {
+        const params = new dpfj_fmd_view_params;
+        const res = UareU.dpfj.dpfj_get_fmd_view_params(fmd.data, params.ref());
+        if (res === 0) {
+            resolve();
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
+
+    public dpfjSetFmdViewParams = (fmd: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_set_fmd_view_params(fmd.data, params);
+        if (res === 0) {
+            resolve();
         } else {
             reject(new ErrorHandler(res));
         }
