@@ -1,9 +1,11 @@
-import DllHandler from "./handlers/dll/dll.handler";
-import ErrorHandler from "./handlers/error/error.handler";
 import * as ref from 'ref-napi';
 import * as ffi from 'ffi-napi';
+import * as ArrayType from 'ref-array-napi';
+
+import DllHandler from "./handlers/dll/dll.handler";
+import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
-import { genericArrayFrom } from "./handlers/types/array/array.handler";
+import { genericArrayFrom, UIntArray } from "./handlers/types/array/array.handler";
 import { DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFPDD_LED_ID, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE } from "./handlers/types/constant/constant.handler";
 import QueryDevices from "./interfaces/query-devices.interface";
 import CaptureCallback from "./interfaces/capture-callback.interface";
@@ -375,12 +377,20 @@ export default class UareU {
     });
 
     public dpfjIdentify = (fmd1: Fmd, fmdList: Fmd[]) => new Promise<IdentifyResult>((resolve, reject) => {
+        const ucharArray = ArrayType('uchar *');
+        const uintArray = ArrayType(ref.types.uint);
+        const fmdListPointer = new ucharArray(fmdList.length);
+        const fmdListSizePointer = new uintArray(fmdList.length);
+        fmdList.forEach((fmd, index) => {
+            fmdListPointer[index] = fmd.data;
+            fmdListSizePointer[index] = fmd.size;
+        });
         const candidate = new dpfj_candidate;
         const candidateCnt = ref.alloc(ref.types.uint, 1);
         const falsePositiveRate = DPFJ_PROBABILITY_ONE / 100000;
-        const res = UareU.dpfj.dpfj_identify(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmdList[0].fmdType, fmdList.length, fmdList, fmdList, falsePositiveRate, candidateCnt, candidate.ref());
+        const res = UareU.dpfj.dpfj_identify(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmdList[0].fmdType, fmdList.length, fmdListPointer.buffer, fmdListSizePointer.buffer, falsePositiveRate, candidateCnt, candidate.ref());
         if (res === 0) {
-            resolve({ index: 1 });
+            resolve({ index: candidateCnt.readUInt8() === 0 ? 'No finger match.' : candidate.fmd_idx });
         } else {
             reject(new ErrorHandler(res));
         }

@@ -1,3 +1,3 @@
 export default interface IdentifyResult {
-    index: number;
+    index: number | string;
 }
