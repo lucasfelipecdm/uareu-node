@@ -7,6 +7,24 @@ const uareu = UareU.getInstance();
 let fmdList: Fmd[] = [];
 let reader: any;
 
+const CaptureCallback = (context, reserved, dataSize, data) => {
+    uareu.dpfjCreateFmdFromFid(data, dataSize, DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004)
+        .then(async (res) => {
+            console.log(fmdList.length);
+            if (fmdList.length < 2) {
+                fmdList.push(res);
+                return 1;
+            } else {
+                return uareu.dpfjIdentify(res, fmdList);
+            }
+        })
+        .then((res) => {
+            console.log(res);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
 // let fmdFromBank: Fmd = {
 //     size: 440,
 //     fmdType: DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004,
@@ -21,28 +39,16 @@ uareu.loadLibs().then(() => {
     return uareu.dpfpddOpen(res.devicesList[0]);
 }).then((res) => {
     reader = res;
-    return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, (context, reserved, dataSize, data) => {
-        uareu.dpfjCreateFmdFromFid(data, dataSize, DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004)
-            .then(async (res) => {
-                if (fmdList.length <= 2) {
-                    fmdList.push(res);
-                    return 1;
-                } else {
-                    return uareu.dpfjIdentify(res, fmdList);
-                }
-            })
-            .then((res) => {
-                console.log(res);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    });
+    return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, CaptureCallback);
 
 }).then((res) => {
-    const TEMPO = 60;
+    const TEMPO = 120;
     setTimeout(() => {
-        console.log(`Deu ${TEMPO} seg`);
+        uareu.dpfpddClose(reader);
+        uareu.dpfpddExit();
+        process.on('exit', () => {
+            CaptureCallback
+        })
     }, 1000 * TEMPO);
 }).then((res) => {
     console.log(res);

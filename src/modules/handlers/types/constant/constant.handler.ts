@@ -1,26 +1,27 @@
 import * as ref from 'ref-napi';
+import { ConstantInterface } from './constant.interface';
 
 export const DPFPDD_SUCCESS: number = 0;
 export const MAX_STR_LENGTH: number = 128;
 export const MAX_DEVICE_NAME_LENGTH: number = 1024;
 export const DPFJ_PROBABILITY_ONE: number = 0x7fffffff;
 
-export const DPFPDD_DEV = {
+export const DPFPDD_DEV: ConstantInterface = {
     type: 'void *'
 };
 
-export const DPFJ_DEV = {
+export const DPFJ_DEV: ConstantInterface = {
     type: 'void *'
 };
 
-export const DPFPDD_HW_MODALITY = {
+export const DPFPDD_HW_MODALITY: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_HW_MODALITY_UNKNOWN: 0,
     DPFPDD_HW_MODALITY_SWIPE: 1,
     DPFPDD_HW_MODALITY_AREA: 2
 };
 
-export const DPFPDD_HW_TECHNOLOGY = {
+export const DPFPDD_HW_TECHNOLOGY: ConstantInterface = {
     type: ref.types.uint,
     DP_HW_TECHNOLOGY_UNKNOWN: 0,
     DP_HW_TECHNOLOGY_OPTICAL: 1,
@@ -29,13 +30,13 @@ export const DPFPDD_HW_TECHNOLOGY = {
     DP_HW_TECHNOLOGY_PRESSURE: 4
 };
 
-export const DPFPDD_PRIORITY = {
+export const DPFPDD_PRIORITY: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_PRIORITY_COOPERATIVE: 2,
     DPFPDD_PRIORITY_EXCLUSIVE: 4
 };
 
-export const DPFPDD_STATUS = {
+export const DPFPDD_STATUS: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_STATUS_READY: 0,
     DPFPDD_STATUS_BUSY: 1,
@@ -43,7 +44,7 @@ export const DPFPDD_STATUS = {
     DPFPDD_STATUS_FAILURE: 3
 };
 
-export const DPFPDD_QUALITY = {
+export const DPFPDD_QUALITY: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_QUALITY_GOOD: 0,
     DPFPDD_QUALITY_TIMED_OUT: 1,
@@ -64,14 +65,14 @@ export const DPFPDD_QUALITY = {
     DPFPDD_QUALITY_READER_DIRTY: (1 << 15)
 };
 
-export const DPFPDD_IMAGE_FMT = {
+export const DPFPDD_IMAGE_FMT: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_IMG_FMT_PIXEL_BUFFER: 0,
     DPFPDD_IMG_FMT_ANSI381: 0x001B0401,
     DPFPDD_IMG_FMT_ISOIEC19794: 0x01010007
 };
 
-export const DPFPDD_IMAGE_PROC = {
+export const DPFPDD_IMAGE_PROC: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_IMG_PROC_DEFAULT: 0,
     DPFPDD_IMG_PROC_PIV: 1,
@@ -82,7 +83,7 @@ export const DPFPDD_IMAGE_PROC = {
 
 export const DPFPDD_IMG_PROC_NONE = DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT;
 
-export const DPFPDD_LED_ID = {
+export const DPFPDD_LED_ID: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_LED_MAIN: 0x01,
     DPFPDD_LED_REJECT: 0x04,
@@ -94,7 +95,7 @@ export const DPFPDD_LED_ID = {
     DPFPDD_LED_ALL: 0xffffffff
 };
 
-export const DPFPDD_LED_MODE_TYPE = {
+export const DPFPDD_LED_MODE_TYPE: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_LED_AUTO: 1,
     DPFPDD_LED_CLIENT: 2,
@@ -102,7 +103,7 @@ export const DPFPDD_LED_MODE_TYPE = {
     DPFPDD_LED_CLIENT_BLINK: 4
 };
 
-export const DPFPDD_LED_CMD_TYPE = {
+export const DPFPDD_LED_CMD_TYPE: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_LED_CMD_OFF: 0,
     DPFPDD_LED_CMD_ON: 1,
@@ -112,7 +113,7 @@ export const DPFPDD_LED_CMD_TYPE = {
     DPFPDD_CLIENT_BLINK_SUPPORTED: 0x40000000
 };
 
-export const DPFPDD_PARMID = {
+export const DPFPDD_PARMID: ConstantInterface = {
     type: ref.types.uint,
     DPFPDD_PARMID_ROTATE: 0x100,
     DPFPDD_PARMID_FINGERDETECT_ENABLE: 0x104,
@@ -127,13 +128,13 @@ export const DPFPDD_PARMID = {
 
 export const DPFPDD_PARMID_SPOOFDETECT_ENABLE = DPFPDD_PARMID.DPFPDD_PARMID_PAD_DP_ENABLE;
 
-export const DPFJ_FID_FORMAT = {
+export const DPFJ_FID_FORMAT: ConstantInterface = {
     type: ref.types.int,
     DPFJ_FID_ANSI_381_2004: 0x001B0401,
     DPFJ_FID_ISO_19794_4_2005: 0x01010007
 };
 
-export const DPFJ_FMD_FORMAT = {
+export const DPFJ_FMD_FORMAT: ConstantInterface = {
     type: ref.types.int,
     DPFJ_FMD_ANSI_378_2004: 0x001B0001,
     DPFJ_FMD_ISO_19794_2_2005: 0x01010001,
@@ -143,7 +144,7 @@ export const DPFJ_FMD_FORMAT = {
     DPFJ_FMD_DP_PLATINUM_REG_FEATURES: 3
 };
 
-export const DPFJ_FINGER_POSITION = {
+export const DPFJ_FINGER_POSITION: ConstantInterface = {
     type: ref.types.int,
     DPFJ_POSITION_UNKNOWN: 0,
     DPFJ_POSITION_RTHUMB: 1,
@@ -158,7 +159,7 @@ export const DPFJ_FINGER_POSITION = {
     DPFJ_POSITION_LLITTLE: 10
 };
 
-export const DPFJ_SCAN_TYPE = {
+export const DPFJ_SCAN_TYPE: ConstantInterface = {
     type: ref.types.int,
     DPFJ_SCAN_LIVE_PLAIN: 0,
     DPFJ_SCAN_LIVE_ROLLED: 1,
@@ -167,14 +168,14 @@ export const DPFJ_SCAN_TYPE = {
     DPFJ_SCAN_SWIPE: 8
 };
 
-export const DPFJ_ENGINE_TYPE = {
+export const DPFJ_ENGINE_TYPE: ConstantInterface = {
     type: ref.types.int,
     DPFJ_ENGINE_DPFJ: 0,
     DPFJ_ENGINE_INNOVATRICS_ANSIISO: 1,
     DPFJ_ENGINE_DPFJ7: 2
 };
 
-const FMD_SIZE = {
+const FMD_SIZE: ConstantInterface = {
     DPFJ_FID_ANSI_381_2004_RECORD_HEADER_LENGTH: 36,
     DPFJ_FID_ISO_19794_4_2005_RECORD_HEADER_LENGTH: 32,
     DPFJ_FID_ANSI_ISO_VIEW_HEADER_LENGTH: 14,
@@ -184,4 +185,4 @@ const FMD_SIZE = {
     DPFJ_FMD_ANSI_ISO_MINITIA_LENGTH: 6,
 }
 
-export const MAX_FMD_SIZE = (FMD_SIZE.DPFJ_FMD_ANSI_378_2004_RECORD_HEADER_LENGTH + FMD_SIZE.DPFJ_FMD_ANSI_ISO_VIEW_HEADER_LENGTH + 255 * FMD_SIZE.DPFJ_FMD_ANSI_ISO_MINITIA_LENGTH + 2);
+export const MAX_FMD_SIZE = (parseInt(FMD_SIZE.DPFJ_FMD_ANSI_378_2004_RECORD_HEADER_LENGTH.toString()) + parseInt(FMD_SIZE.DPFJ_FMD_ANSI_ISO_VIEW_HEADER_LENGTH.toString()) + 255 * parseInt(FMD_SIZE.DPFJ_FMD_ANSI_ISO_MINITIA_LENGTH.toString()) + 2);

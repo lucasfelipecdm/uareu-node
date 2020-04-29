@@ -1,4 +1,4 @@
-import { CharArray, UCharArray, UIntArray } from '../array/array.handler';
+import { charArray, uCharArray, uIntArray } from '../array/array.handler';
 import {
     MAX_STR_LENGTH,
     MAX_DEVICE_NAME_LENGTH,
@@ -39,9 +39,9 @@ export const dpfj_version = Struct({
 });
 
 export const dpfpdd_hw_descr = Struct({
-    vendor_name: CharArray(MAX_STR_LENGTH),
-    product_name: CharArray(MAX_STR_LENGTH),
-    serial_num: CharArray(MAX_STR_LENGTH)
+    vendor_name: charArray(MAX_STR_LENGTH),
+    product_name: charArray(MAX_STR_LENGTH),
+    serial_num: charArray(MAX_STR_LENGTH)
 });
 
 export const dpfpdd_hw_id = Struct({
@@ -57,7 +57,7 @@ export const dpfpdd_hw_version = Struct({
 
 export const dpfpdd_dev_info = Struct({
     size: ref.types.uint,
-    name: CharArray(MAX_DEVICE_NAME_LENGTH),
+    name: charArray(MAX_DEVICE_NAME_LENGTH),
     descr: dpfpdd_hw_descr,
     id: dpfpdd_hw_id,
     ver: dpfpdd_hw_version,
@@ -78,14 +78,14 @@ export const dpfpdd_dev_caps = Struct({
     has_calibration: ref.types.int,
     piv_compliant: ref.types.int,
     resolution_cnt: ref.types.uint,
-    resolutions: UIntArray(1)
+    resolutions: uIntArray(1)
 });
 
 export const dpfpdd_dev_status = Struct({
     size: ref.types.uint,
     status: DPFPDD_STATUS.type,
     finger_detected: ref.types.int,
-    data: UCharArray(1)
+    data: uCharArray(1)
 });
 
 export const dpfpdd_capture_param = Struct({
@@ -123,7 +123,7 @@ export const dpfpdd_capture_callback_data_0 = Struct({
 export const dpfpdd_iomap = Struct({
     addr: ref.types.ushort,
     len: ref.types.ushort,
-    buff: UCharArray(1)
+    buff: uCharArray(1)
 });
 
 export const dpfj_candidate = Struct({
