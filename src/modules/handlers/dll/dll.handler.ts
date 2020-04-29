@@ -1,9 +1,10 @@
 import { DPFPDD_PRIORITY, DPFPDD_LED_ID, DPFPDD_LED_MODE_TYPE, DPFPDD_LED_CMD_TYPE, DPFPDD_PARMID, DPFJ_DEV, DPFJ_ENGINE_TYPE, DPFJ_FINGER_POSITION, DPFJ_FMD_FORMAT, DPFJ_FID_FORMAT } from './../types/constant/constant.handler';
 import * as ffi from 'ffi-napi';
 import * as ref from 'ref-napi';
+import DllHandlerInterface from './dll.interface';
 
-export default class DllHandler {
-    public static loadDpfppdFrom = (path?: string) => new Promise<any>((resolve, reject) => {
+export default class DllHandler implements DllHandlerInterface {
+    public loadDpfppdFrom = (path?: string) => new Promise<any>((resolve, reject) => {
         try {
             resolve(ffi.Library(path ?? 'bin/dpfpdd', {
                 'dpfpdd_version': [ref.types.int, ['pointer']],
@@ -33,7 +34,7 @@ export default class DllHandler {
         }
     });
 
-    public static loadDpfjFrom = (path?: string) => new Promise<any>((resolve, reject) => {
+    public loadDpfjFrom = (path?: string) => new Promise<any>((resolve, reject) => {
         try {
             resolve(ffi.Library(path ?? 'bin/dpfj', {
                 'dpfj_version': [ref.types.int, ['pointer']],
