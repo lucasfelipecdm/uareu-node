@@ -3,6 +3,9 @@ import DPERROR_CONSTANTS from './error.constants';
 
 export default class ErrorHandler {
     constructor(error: any, errorInfo?: Error) {
+        if (errorInfo) {
+            console.log(errorInfo);
+        }
         if (typeof error === 'number') {
             const code = error.toString(16).slice(-3);
             if (DPERROR_CONSTANTS[code]) {
