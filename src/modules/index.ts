@@ -6,8 +6,8 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE } from "./handlers/types/constant/constant.handler";
-import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct } from "./interfaces/uareu.interfaces";
+import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE } from "./handlers/types/constant/constant.handler";
+import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 let captureCallback: any;
@@ -514,20 +514,40 @@ export default class UareU implements UareUInterface {
         }
     });
 
-    public dpfjVersion = () => new Promise<any>((resolve, reject) => {
-        const ver = ref.alloc(dpfj_version);
-        const res = UareU.dpfj.dpfj_version(ver);
+    public dpfjVersion = () => new Promise<DpfjVersionStruct>((resolve, reject) => {
+        const ver = new dpfj_version;
+        const res = UareU.dpfj.dpfj_version(dpfj_version.ref());
         if (res === 0) {
-            resolve(ver);
+            const verObj = {
+                callbackRet: res,
+                readableRet: 'Version information was acquired.',
+                size: ver.size,
+                lib_ver: {
+                    major: ver.lib_ver.major,
+                    minor: ver.lib_ver.minor,
+                    maintenance: ver.lib_ver.maintenance
+                },
+                api_ver: {
+                    major: ver.api_ver.major,
+                    minor: ver.api_ver.minor,
+                    maintenance: ver.api_ver.maintenance
+                }
+            };
+            resolve(verObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfjSelectEngine = (reader: any, engine: typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_DPFJ | typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_DPFJ7 | typeof DPFJ_ENGINE_TYPE.DPFJ_ENGINE_INNOVATRICS_ANSIISO) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_select_engine(reader, engine);
+    public dpfjSelectEngine = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct, engine: DPFJ_ENGINE_TYPE_TYPE) => new Promise<DpfjSelectEngineStruct>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_select_engine(ref.deref(readerHandle), engine);
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Engine is selected.',
+                engine: keyByValue(DPFJ_ENGINE_TYPE, engine)!
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
@@ -545,107 +565,120 @@ export default class UareU implements UareUInterface {
     //         }
     //     });
 
-    public dpfjCreateFmdFromFid = (imageData: any, imageSize: number, fmdType: number) => new Promise<Fmd>((resolve, reject) => {
-        const image = new dpfpdd_capture_callback_data_0(ref.reinterpret(imageData, imageSize));
+    public dpfjCreateFmdFromFid = (captureData: DpfpddCaptureCallbackData0, fmdFormat: DPFJ_FMD_FORMAT_TYPE) => new Promise<DpfjCreateFmdFromFidStruct>((resolve, reject) => {
         const fmd = Buffer.alloc(MAX_FMD_SIZE);
         const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
-        const res = UareU.dpfj.dpfj_create_fmd_from_fid(image.capture_parm.image_fmt, image.image_data, image.image_size, fmdType, fmd, fmdSize);
+        const res = UareU.dpfj.dpfj_create_fmd_from_fid(captureData.data.capture_parm.image_fmt, captureData.data.image_data, captureData.data.image_size, fmdFormat, fmd, fmdSize);
         if (res === 0) {
-            resolve({ size: ref.deref(fmdSize), fmdType, data: fmd });
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'FMD was created.',
+                size: ref.deref(fmdSize),
+                type: keyByValue(DPFJ_FMD_FORMAT, fmdFormat)!,
+                typeCode: fmdFormat,
+                fmd: fmd
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfjCompare = (fmd1: Fmd, fmd2: Fmd) => new Promise<CompareResult>((resolve, reject) => {
+    public dpfjCompare = (fmd1: DpfjCreateFmdFromFidStruct, fmd2: DpfjCreateFmdFromFidStruct) => new Promise<DpfjCompareStruct>((resolve, reject) => {
         const score = ref.alloc(ref.types.uint);
-        const res = UareU.dpfj.dpfj_compare(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmd2.fmdType, fmd2.data, fmd2.size, 0, score);
+        const res = UareU.dpfj.dpfj_compare(fmd1.typeCode, fmd1.fmd, fmd1.size, 0, fmd2.typeCode, fmd2.fmd, fmd2.size, 0, score);
         if (res === 0) {
             if (score.readUInt8() === 0) {
-                resolve({
-                    result: 'MATCH',
-                    score: score.readUInt8()
-                });
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Comparison finished.',
+                    resultMessage: 'Fingers match.',
+                    dissimilarityScore: score.readUInt8()
+                };
+                resolve(resObj);
             } else {
-                resolve({
-                    result: 'DONT MATCH',
-                    score: score.readUInt8()
-                });
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Comparison finished.',
+                    resultMessage: "Fingers don't match.",
+                    dissimilarityScore: score.readUInt8()
+                };
+                resolve(resObj);
             }
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfjIdentify = (fmd1: Fmd, fmdList: Fmd[]) => new Promise<IdentifyResult>((resolve, reject) => {
-        const ucharArray = ArrayType('uchar *');
-        const uintArray = ArrayType(ref.types.uint);
-        const fmdListPointer = new ucharArray(fmdList.length);
-        const fmdListSizePointer = new uintArray(fmdList.length);
-        fmdList.forEach((fmd, index) => {
-            fmdListPointer[index] = fmd.data;
-            fmdListSizePointer[index] = fmd.size;
-        });
-        const candidate = new dpfj_candidate;
-        const candidateCnt = ref.alloc(ref.types.uint, 1);
-        const falsePositiveRate = DPFJ_PROBABILITY_ONE / 100000;
-        const res = UareU.dpfj.dpfj_identify(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmdList[0].fmdType, fmdList.length, fmdListPointer.buffer, fmdListSizePointer.buffer, falsePositiveRate, candidateCnt, candidate.ref());
-        if (res === 0) {
-            resolve({ index: candidateCnt.readUInt8() === 0 ? 'No finger match.' : candidate.fmd_idx });
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjIdentify = (fmd1: Fmd, fmdList: Fmd[]) => new Promise<IdentifyResult>((resolve, reject) => {
+    //     const ucharArray = ArrayType('uchar *');
+    //     const uintArray = ArrayType(ref.types.uint);
+    //     const fmdListPointer = new ucharArray(fmdList.length);
+    //     const fmdListSizePointer = new uintArray(fmdList.length);
+    //     fmdList.forEach((fmd, index) => {
+    //         fmdListPointer[index] = fmd.data;
+    //         fmdListSizePointer[index] = fmd.size;
+    //     });
+    //     const candidate = new dpfj_candidate;
+    //     const candidateCnt = ref.alloc(ref.types.uint, 1);
+    //     const falsePositiveRate = DPFJ_PROBABILITY_ONE / 100000;
+    //     const res = UareU.dpfj.dpfj_identify(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmdList[0].fmdType, fmdList.length, fmdListPointer.buffer, fmdListSizePointer.buffer, falsePositiveRate, candidateCnt, candidate.ref());
+    //     if (res === 0) {
+    //         resolve({ index: candidateCnt.readUInt8() === 0 ? 'No finger match.' : candidate.fmd_idx });
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjStartEnrollment = (fmdType: number) => new Promise<number>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_start_enrollment(fmdType);
-        if (res === 0) {
-            resolve(res);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjStartEnrollment = (fmdType: number) => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_start_enrollment(fmdType);
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjAddToEnrollment = (fmd: Fmd) => new Promise<number>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.fmdType, fmd.data, fmd.size, 0);
-        const errorCode = res.toString(16).slice(-3);
-        if (res === 0 || errorCode === '00d') {
-            resolve(res);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjAddToEnrollment = (fmd: Fmd) => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.fmdType, fmd.data, fmd.size, 0);
+    //     const errorCode = res.toString(16).slice(-3);
+    //     if (res === 0 || errorCode === '00d') {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjCreateEnrollmentFmd = () => new Promise<any>((resolve, reject) => {
-        const fmd = Buffer.alloc(MAX_FMD_SIZE);
-        const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
-        const res = UareU.dpfj.dpfj_create_enrollment_fmd(fmd, fmdSize);
-        if (res === 0) {
-            resolve(fmd);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjCreateEnrollmentFmd = () => new Promise<any>((resolve, reject) => {
+    //     const fmd = Buffer.alloc(MAX_FMD_SIZE);
+    //     const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+    //     const res = UareU.dpfj.dpfj_create_enrollment_fmd(fmd, fmdSize);
+    //     if (res === 0) {
+    //         resolve(fmd);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjFinishEnrollment = () => new Promise<number>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_finish_enrollment();
-        if (res === 0) {
-            resolve(res);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjFinishEnrollment = () => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_finish_enrollment();
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjFmdConvert = (fmd: Fmd, toFormat: number) => new Promise<Fmd>((resolve, reject) => {
-        const fmdOut = Buffer.alloc(MAX_FMD_SIZE);
-        const fmdOutSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
-        const res = UareU.dpfj.dpfj_fmd_convert(fmd.fmdType, fmd.data, fmd.size, toFormat, fmdOut, fmdOutSize);
-        if (res === 0) {
-            resolve({ size: ref.deref(fmdOutSize), fmdType: toFormat, data: fmdOut });
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjFmdConvert = (fmd: Fmd, toFormat: number) => new Promise<Fmd>((resolve, reject) => {
+    //     const fmdOut = Buffer.alloc(MAX_FMD_SIZE);
+    //     const fmdOutSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+    //     const res = UareU.dpfj.dpfj_fmd_convert(fmd.fmdType, fmd.data, fmd.size, toFormat, fmdOut, fmdOutSize);
+    //     if (res === 0) {
+    //         resolve({ size: ref.deref(fmdOutSize), fmdType: toFormat, data: fmdOut });
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
     // public dpfjDpFidConvert = () => new Promise<number>((resolve, reject) => {
     //     const res = UareU.dpfj.dpfj_dp_fid_convert();
@@ -665,99 +698,99 @@ export default class UareU implements UareUInterface {
     //     }
     // });
 
-    public dpfjGetFidRecordParams = (fidType: number, fid: any) => new Promise<void>((resolve, reject) => {
-        const params = new dpfj_fid_record_params;
-        const res = UareU.dpfj.dpfj_get_fid_record_params(fidType, fid, params.ref());
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFidRecordParams = (fidType: number, fid: any) => new Promise<void>((resolve, reject) => {
+    //     const params = new dpfj_fid_record_params;
+    //     const res = UareU.dpfj.dpfj_get_fid_record_params(fidType, fid, params.ref());
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjSetFidRecordParams = (fidType: number, fid: any, params: Buffer) => new Promise<void>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_set_fid_record_params(params, fidType, fid);
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjSetFidRecordParams = (fidType: number, fid: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_set_fid_record_params(params, fidType, fid);
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjGetFidViewOffset = (fidType: number, fid: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_get_fid_view_offset(fidType, fid, viewIndex);
-        if (res === 0) {
-            resolve(res);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFidViewOffset = (fidType: number, fid: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_get_fid_view_offset(fidType, fid, viewIndex);
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjGetFidViewParams = (fidView: any) => new Promise<void>((resolve, reject) => {
-        const params = new dpfj_fid_view_params;
-        const res = UareU.dpfj.dpfj_get_fid_view_params(fidView, params.ref());
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFidViewParams = (fidView: any) => new Promise<void>((resolve, reject) => {
+    //     const params = new dpfj_fid_view_params;
+    //     const res = UareU.dpfj.dpfj_get_fid_view_params(fidView, params.ref());
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjSetFidViewParams = (fidView: any, params: Buffer) => new Promise<void>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_set_fid_view_params(params, fidView);
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjSetFidViewParams = (fidView: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_set_fid_view_params(params, fidView);
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjGetFmdRecordParams = (fmdType: number, fmd: Fmd) => new Promise<void>((resolve, reject) => {
-        const params = new dpfj_fmd_record_params;
-        const res = UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.data, params.ref());
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFmdRecordParams = (fmdType: number, fmd: Fmd) => new Promise<void>((resolve, reject) => {
+    //     const params = new dpfj_fmd_record_params;
+    //     const res = UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.data, params.ref());
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjSetFmdRecordParams = (fmdType: number, fmd: Fmd, params: Buffer) => new Promise<void>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_set_fmd_record_params(params, fmdType, fmd.data);
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjSetFmdRecordParams = (fmdType: number, fmd: Fmd, params: Buffer) => new Promise<void>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_set_fmd_record_params(params, fmdType, fmd.data);
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjGetFmdViewOffset = (fmdType: number, fmd: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_get_fmd_view_offset(fmdType, fmd.data, viewIndex);
-        if (res === 0) {
-            resolve(res);
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFmdViewOffset = (fmdType: number, fmd: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_get_fmd_view_offset(fmdType, fmd.data, viewIndex);
+    //     if (res === 0) {
+    //         resolve(res);
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjGetFmdViewParams = (fmd: any) => new Promise<void>((resolve, reject) => {
-        const params = new dpfj_fmd_view_params;
-        const res = UareU.dpfj.dpfj_get_fmd_view_params(fmd.data, params.ref());
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjGetFmdViewParams = (fmd: any) => new Promise<void>((resolve, reject) => {
+    //     const params = new dpfj_fmd_view_params;
+    //     const res = UareU.dpfj.dpfj_get_fmd_view_params(fmd.data, params.ref());
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 
-    public dpfjSetFmdViewParams = (fmd: any, params: Buffer) => new Promise<void>((resolve, reject) => {
-        const res = UareU.dpfj.dpfj_set_fmd_view_params(fmd.data, params);
-        if (res === 0) {
-            resolve();
-        } else {
-            reject(new ErrorHandler(res));
-        }
-    });
+    // public dpfjSetFmdViewParams = (fmd: any, params: Buffer) => new Promise<void>((resolve, reject) => {
+    //     const res = UareU.dpfj.dpfj_set_fmd_view_params(fmd.data, params);
+    //     if (res === 0) {
+    //         resolve();
+    //     } else {
+    //         reject(new ErrorHandler(res));
+    //     }
+    // });
 };
 
 process.on('exit', function () {

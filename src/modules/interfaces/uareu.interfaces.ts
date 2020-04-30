@@ -1,14 +1,7 @@
-import { DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE } from './../handlers/types/constant/constant.handler';
-import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE } from "../handlers/types/constant/constant.handler";
+import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE } from './../handlers/types/constant/constant.handler';
 
 export interface IdentifyResult {
     index: number | string;
-};
-
-export interface Fmd {
-    size: number;
-    fmdType: number,
-    data: any;
 };
 
 export interface CompareResult {
@@ -306,6 +299,59 @@ export interface DpfpddGetParameterFunc {
     ): Promise<DpfpddGetParameterStruct>;
 };
 
+export interface DpfjVerInfoStruct {
+    major: number;
+    minor: number;
+    maintenance: number;
+};
+
+export interface DpfjVersionStruct extends BaseResultStruct {
+    size: number;
+    lib_ver: DpfjVerInfoStruct;
+    api_ver: DpfjVerInfoStruct;
+};
+
+export interface DpfjVersionFunc {
+    (): Promise<DpfjVersionStruct>;
+};
+
+export interface DpfjSelectEngineStruct extends BaseResultStruct {
+    engine: string;
+};
+
+export interface DpfjSelectEngineFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        engine: DPFJ_ENGINE_TYPE_TYPE
+    ): Promise<DpfjSelectEngineStruct>;
+};
+
+export interface DpfjCreateFmdFromFidStruct extends BaseResultStruct {
+    size: number;
+    type: string;
+    typeCode: number,
+    fmd: any;
+}
+
+export interface DpfjCreateFmdFromFidFunc {
+    (
+        captureData: DpfpddCaptureCallbackData0,
+        fmdFormat: DPFJ_FMD_FORMAT_TYPE
+    ): Promise<DpfjCreateFmdFromFidStruct>
+}
+
+export interface DpfjCompareStruct extends BaseResultStruct {
+    resultMessage: string;
+    dissimilarityScore: number;
+}
+
+export interface DpfjCompareFunc {
+    (
+        fmd1: DpfjCreateFmdFromFidStruct,
+        fmd2: DpfjCreateFmdFromFidStruct,
+    ): Promise<DpfjCompareStruct>
+}
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -329,4 +375,9 @@ export interface UareUInterface {
     dpfpddLedCtrl: DpfpddLedCtrlFunc;
     dpfpddSetParameter: DpfpddSetParameterFunc;
     dpfpddGetParameter: DpfpddGetParameterFunc;
+    dpfjVersion: DpfjVersionFunc;
+    dpfjSelectEngine: DpfjSelectEngineFunc;
+    // dpfjCreateFmdFromRaw: DpfjCreateFmdFromRawFunc;
+    dpfjCreateFmdFromFid: DpfjCreateFmdFromFidFunc;
+    dpfjCompare: DpfjCompareFunc;
 };
