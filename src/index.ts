@@ -12,7 +12,7 @@ let reader: DpfppdOpenStruct | DpfppdOpenExtStruct;
 
 uareu.loadLibs()
     .then((res) => {
-        console.log(`Libs initialized. ${res}`);
+        console.log(`Libs found... ${res}`);
         return uareu.dpfpddInit();
     })
     .then((res) => {
@@ -25,14 +25,6 @@ uareu.loadLibs()
     })
     .then((res) => {
         reader = res;
-        console.log(reader);
-        return uareu.dpfpddReset(reader);
-    })
-    .then((res) => {
-        console.log(res);
-        return uareu.dpfpddCalibrate(reader);
-    })
-    .then((res) => {
         console.log(res);
         return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 as DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT as DPFPDD_IMAGE_PROC_TYPE, callback);
     })

@@ -6,8 +6,8 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY } from "./handlers/types/constant/constant.handler";
-import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct } from "./interfaces/uareu.interfaces";
+import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE } from "./handlers/types/constant/constant.handler";
+import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 let captureCallback: any;
@@ -460,38 +460,55 @@ export default class UareU implements UareUInterface {
         }
     });
 
-    public dpfpddLedConfig = (reader: any, ledId: number, ledMode: number) => new Promise<any>((resolve, reject) => {
+    public dpfpddLedConfig = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct, ledId: DPFPDD_LED_ID_TYPE, ledMode: DPFPDD_LED_MODE_TYPE_TYPE) => new Promise<DpfpddLedConfigStruct>((resolve, reject) => {
         const reserved = ref.alloc('void *');
-        const res = UareU.dpfpdd.dpfpdd_led_config(reader, ledId, ledMode, reserved);
+        const res = UareU.dpfpdd.dpfpdd_led_config(ref.deref(readerHandle), ledId, ledMode, reserved);
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'New led config set.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddLedCtrl = (reader: any, ledId: number, ledCmd: number) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_led_ctrl(reader, ledId, ledCmd);
+    public dpfpddLedCtrl = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct, ledId: DPFPDD_LED_ID_TYPE, ledCmd: DPFPDD_LED_CMD_TYPE_TYPE) => new Promise<DpfpddLedCtrlStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_led_ctrl(ref.deref(readerHandle), ledId, ledCmd);
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Led changed.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddSetParameter = (reader: any, parmId: number, buffer: Buffer) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_set_parameter(reader, parmId, buffer.length, buffer);
+    public dpfpddSetParameter = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct, parmId: DPFPDD_PARMID_TYPE, parmBuffer: Buffer) => new Promise<DpfpddSetParameterStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_set_parameter(ref.deref(readerHandle), parmId, parmBuffer.length, parmBuffer);
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Parameter was set.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddGetParameter = (reader: any, parmId: number, buffer: Buffer) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_get_parameter(reader, parmId, buffer.length, buffer);
+    public dpfpddGetParameter = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct, parmId: DPFPDD_PARMID_TYPE, parmBuffer: Buffer) => new Promise<DpfpddGetParameterStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_get_parameter(ref.deref(readerHandle), parmId, parmBuffer.length, parmBuffer);
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Parameter was get.',
+                paramBuffer: parmBuffer,
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }

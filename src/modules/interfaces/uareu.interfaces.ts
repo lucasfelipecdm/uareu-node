@@ -1,4 +1,4 @@
-import { DPFPDD_PRIORITY_TYPE } from './../handlers/types/constant/constant.handler';
+import { DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE } from './../handlers/types/constant/constant.handler';
 import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE } from "../handlers/types/constant/constant.handler";
 
 export interface IdentifyResult {
@@ -264,6 +264,48 @@ export interface DpfpddCalibrateFunc {
     (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddCalibrateStruct>;
 };
 
+export interface DpfpddLedConfigStruct extends BaseResultStruct { };
+
+export interface DpfpddLedConfigFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        ledId: DPFPDD_LED_ID_TYPE,
+        ledMode: DPFPDD_LED_MODE_TYPE_TYPE,
+    ): Promise<DpfpddLedConfigStruct>;
+};
+
+export interface DpfpddLedCtrlStruct extends BaseResultStruct { };
+
+export interface DpfpddLedCtrlFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        ledId: DPFPDD_LED_ID_TYPE,
+        ledMode: DPFPDD_LED_CMD_TYPE_TYPE,
+    ): Promise<DpfpddLedCtrlStruct>;
+};
+
+export interface DpfpddSetParameterStruct extends BaseResultStruct { };
+
+export interface DpfpddSetParameterFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        parmId: DPFPDD_PARMID_TYPE,
+        parmBuffer: Buffer
+    ): Promise<DpfpddSetParameterStruct>;
+};
+
+export interface DpfpddGetParameterStruct extends BaseResultStruct {
+    paramBuffer: any;
+};
+
+export interface DpfpddGetParameterFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        parmId: DPFPDD_PARMID_TYPE,
+        parmBuffer: Buffer
+    ): Promise<DpfpddGetParameterStruct>;
+};
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -283,4 +325,8 @@ export interface UareUInterface {
     dpfpddGetStreamImage: DpfpddGetStreamImageFunc;
     dpfpddReset: DpfpddResetFunc;
     dpfpddCalibrate: DpfpddCalibrateFunc;
+    dpfpddLedConfig: DpfpddLedConfigFunc;
+    dpfpddLedCtrl: DpfpddLedCtrlFunc;
+    dpfpddSetParameter: DpfpddSetParameterFunc;
+    dpfpddGetParameter: DpfpddGetParameterFunc;
 };
