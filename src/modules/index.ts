@@ -6,15 +6,15 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE } from "./handlers/types/constant/constant.handler";
-import { CaptureCallback, Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct } from "./interfaces/uareu.interfaces";
+import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY } from "./handlers/types/constant/constant.handler";
+import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0 } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
+let captureCallback: any;
 export default class UareU implements UareUInterface {
     private static instance: UareU;
     private static dpfpdd: any;
     private static dpfj: any;
-
     private constructor() { };
 
     public static getInstance = (): UareU => {
@@ -276,7 +276,7 @@ export default class UareU implements UareUInterface {
                         info: {
                             size: captureResult.info.size,
                             width: captureResult.info.width,
-                            heigth: captureResult.info.heigth,
+                            height: captureResult.info.height,
                             res: captureResult.info.res,
                             bpp: captureResult.info.bpp
                         }
@@ -291,23 +291,57 @@ export default class UareU implements UareUInterface {
         })
     });
 
-    public dpfpddCaptureAsync = (
-        reader: any,
-        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
-        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED,
-        callback: CaptureCallback
-    ) => new Promise<any>((resolve, reject) => {
-        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+    public dpfpddCaptureAsync = (readerInfo: DpfppdOpenStruct | DpfppdOpenExtStruct, imageFmt: DPFPDD_IMAGE_FMT_TYPE, imageProc: DPFPDD_IMAGE_PROC_TYPE, callback: DpfpddCaptureCallbackFunc) => new Promise<DpfpddCaptureAsyncStruct>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(readerInfo).then((readerCaps) => {
+            captureCallback = ffi.Callback('void', ['pointer', 'int', 'int', 'pointer'], (ctx: any, rsv: number, dtSize: number, dt: any) => {
+                const dtReinterpreted = new dpfpdd_capture_callback_data_0(ref.reinterpret(dt, dtSize));
+                const dtObj = {
+                    size: dtReinterpreted.size,
+                    error: dtReinterpreted.error,
+                    captureParm: {
+                        size: dtReinterpreted.capture_parm.size,
+                        imageFmt: keyByValue(DPFPDD_IMAGE_FMT, dtReinterpreted.capture_parm.image_fmt)!,
+                        imageProc: keyByValue(DPFPDD_IMAGE_PROC, dtReinterpreted.capture_parm.image_proc)!,
+                        imageRes: dtReinterpreted.capture_parm.image_res
+                    },
+                    captureResult: {
+                        size: dtReinterpreted.capture_result.size,
+                        success: dtReinterpreted.capture_result.success,
+                        quality: keyByValue(DPFPDD_QUALITY, dtReinterpreted.capture_result.quality)!,
+                        score: dtReinterpreted.capture_result.score,
+                        info: {
+                            size: dtReinterpreted.capture_result.info.size,
+                            width: dtReinterpreted.capture_result.info.width,
+                            height: dtReinterpreted.capture_result.info.height,
+                            res: dtReinterpreted.capture_result.info.res,
+                            bpp: dtReinterpreted.capture_result.info.bpp
+                        }
+                    },
+                    imageSize: dtReinterpreted.image_size,
+                    imageData: dtReinterpreted.image_data,
+                    data: dtReinterpreted
+                }
+                callback(dtObj, dtSize);
+            });
             const context = ref.alloc('void *');
             const captureParam = new dpfpdd_capture_param;
             captureParam.size = captureParam.ref().buffer.byteLength;
             captureParam.image_fmt = imageFmt;
             captureParam.image_proc = imageProc;
             captureParam.image_res = readerCaps.deviceCaps.resolutions;
-            const CaptureCallback = ffi.Callback('void', ['pointer', 'int', 'int', 'pointer'], callback);
-            const res = UareU.dpfpdd.dpfpdd_capture_async(reader, captureParam.ref(), context, CaptureCallback);
+            const res = UareU.dpfpdd.dpfpdd_capture_async(ref.deref(readerInfo.readerHandle), captureParam.ref(), context, captureCallback);
             if (res === 0) {
-                resolve(res);
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Async capture started, put your finger on reader and the callback function will receive the data.',
+                    captureParam: {
+                        size: captureParam.size,
+                        imageFmt: keyByValue(DPFPDD_IMAGE_FMT, captureParam.image_fmt)!,
+                        imageProc: keyByValue(DPFPDD_IMAGE_PROC, captureParam.image_proc)!,
+                        imageRes: captureParam.image_res
+                    }
+                }
+                resolve(resObj);
             } else {
                 reject(new ErrorHandler(res));
             }
@@ -669,3 +703,7 @@ export default class UareU implements UareUInterface {
         }
     });
 };
+
+process.on('exit', function () {
+    captureCallback
+});

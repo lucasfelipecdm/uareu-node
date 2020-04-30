@@ -16,10 +16,6 @@ export interface CompareResult {
     score: number;
 };
 
-export interface CaptureCallback {
-    (context: any, reserved: number, callbackDataSize: number, callbackData: any): any;
-};
-
 export interface BaseResultStruct {
     callbackRet: number;
     readableRet: string;
@@ -171,7 +167,7 @@ export interface DpfpddCaptureParamStruct {
 export interface DpfpddImageInfoStruct {
     size: number;
     width: number;
-    heigth: number;
+    height: number;
     res: number;
     bpp: number;
 };
@@ -198,6 +194,33 @@ export interface DpfpddCaptureFunc {
     ): Promise<DpfpddCaptureStruct>;
 };
 
+export interface DpfpddCaptureCallbackData0 {
+    size: number;
+    error: number;
+    captureParm: DpfpddCaptureParamStruct;
+    captureResult: DpfpddCaptureResultStruct;
+    imageSize: number;
+    imageData: Buffer;
+    data: any;
+}
+
+export interface DpfpddCaptureCallbackFunc {
+    (imageData: DpfpddCaptureCallbackData0, imageDataSize: number): void;
+};
+
+export interface DpfpddCaptureAsyncStruct extends BaseResultStruct {
+    captureParam: DpfpddCaptureParamStruct;
+};
+
+export interface DpfpddCaptureAsyncFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        imageFmt: DPFPDD_IMAGE_FMT_TYPE,
+        imageProc: DPFPDD_IMAGE_PROC_TYPE,
+        callback: DpfpddCaptureCallbackFunc
+    ): Promise<DpfpddCaptureAsyncStruct>;
+};
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -210,4 +233,5 @@ export interface UareUInterface {
     dpfpddGetDeviceStatus: DpfppdGetDeviceStatusFunc;
     dpfpddGetDeviceCapabilities: DpfppdGetDeviceCapabilitiesFunc;
     dpfpddCapture: DpfpddCaptureFunc;
+    dpfpddCaptureAsync: DpfpddCaptureAsyncFunc;
 };
