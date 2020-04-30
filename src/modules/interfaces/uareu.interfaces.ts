@@ -1,4 +1,5 @@
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_PRIORITY } from "../handlers/types/constant/constant.handler";
+import { DPFPDD_PRIORITY_TYPE } from './../handlers/types/constant/constant.handler';
+import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE } from "../handlers/types/constant/constant.handler";
 
 export interface IdentifyResult {
     index: number | string;
@@ -22,56 +23,56 @@ export interface CaptureCallback {
 export interface BaseResultStruct {
     callbackRet: number;
     readableRet: string;
-}
+};
 
 export interface LoadLibsFunc {
     (dpfpddLibPath?: string, dpfjLibPath?: string): Promise<number>;
-}
+};
 
 export interface DpfpddVerInfoStruct {
     major: number;
     minor: number;
     maintenance: number;
-}
+};
 
 export interface DpfppdVersionStruct extends BaseResultStruct {
     size: number;
     lib_ver: DpfpddVerInfoStruct;
     api_ver: DpfpddVerInfoStruct;
-}
+};
 
 export interface DpfppdVersionFunc {
     (): Promise<DpfppdVersionStruct>;
-}
+};
 
-export interface DpfppdInitStruct extends BaseResultStruct { }
+export interface DpfppdInitStruct extends BaseResultStruct { };
 
 export interface DpfppdInitFunc {
     (): Promise<DpfppdInitStruct>;
-}
+};
 
-export interface DpfppdExitStruct extends BaseResultStruct { }
+export interface DpfppdExitStruct extends BaseResultStruct { };
 
 export interface DpfppdExitFunc {
     (): Promise<DpfppdExitStruct>;
-}
+};
 
 export interface DpfpddHwDescrStruct {
     vendorName: string;
     productName: string;
     serialNum: string;
-}
+};
 
 export interface DpfpddHwIdStruct {
     vendorId: number;
     productId: number;
-}
+};
 
 export interface DpfpddHwVersionStruct {
     hwVer: DpfpddVerInfoStruct;
     fwVer: DpfpddVerInfoStruct;
     bcdVer: number;
-}
+};
 
 export interface ReaderStruct {
     size: number;
@@ -82,7 +83,7 @@ export interface ReaderStruct {
     modality: string;
     technology: string;
     data: any;
-}
+};
 
 export interface DpfppdQueryDevicesStruct extends BaseResultStruct {
     devicesNumber: number;
@@ -96,41 +97,45 @@ export interface DpfppdQueryDevicesFunc {
 export interface DpfppdOpenStruct extends BaseResultStruct {
     readerName: string;
     readerHandle: any;
-}
+};
 
 export interface DpfppdOpenFunc {
     (reader: ReaderStruct): Promise<DpfppdOpenStruct>;
-}
+};
+
 export interface DpfppdOpenExtStruct extends BaseResultStruct {
     readerName: string;
     readerHandle: any;
     readerPriority: string;
-}
+};
 
 export interface DpfppdOpenExtFunc {
-    (reader: ReaderStruct, priority: typeof DPFPDD_PRIORITY.DPFPDD_PRIORITY_COOPERATIVE | typeof DPFPDD_PRIORITY.DPFPDD_PRIORITY_EXCLUSIVE): Promise<DpfppdOpenExtStruct>;
-}
+    (
+        reader: ReaderStruct,
+        priority: DPFPDD_PRIORITY_TYPE
+    ): Promise<DpfppdOpenExtStruct>;
+};
 
-export interface DpfppdCloseStruct extends BaseResultStruct { }
+export interface DpfppdCloseStruct extends BaseResultStruct { };
 
 export interface DpfppdCloseFunc {
     (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfppdCloseStruct>;
-}
+};
 
 export interface DpfpddDevStatusStruct {
     size: number;
     status: string;
     fingerDetected: number;
     data: string;
-}
+};
 
 export interface DpfppdGetDeviceStatusStruct extends BaseResultStruct {
     deviceStatus: DpfpddDevStatusStruct;
-}
+};
 
 export interface DpfppdGetDeviceStatusFunc {
     (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfppdGetDeviceStatusStruct>;
-}
+};
 
 export interface DpfpddDevCapsStruct {
     size: number,
@@ -146,15 +151,53 @@ export interface DpfpddDevCapsStruct {
     pivCompliant: number,
     resolutionCnt: number,
     resolutions: number[]
-}
+};
 
 export interface DpfppdGetDeviceCapabilitiesStruct extends BaseResultStruct {
     deviceCaps: DpfpddDevCapsStruct;
-}
+};
 
 export interface DpfppdGetDeviceCapabilitiesFunc {
     (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfppdGetDeviceCapabilitiesStruct>;
-}
+};
+
+export interface DpfpddCaptureParamStruct {
+    size: number;
+    imageFmt: string;
+    imageProc: string;
+    imageRes: number;
+};
+
+export interface DpfpddImageInfoStruct {
+    size: number;
+    width: number;
+    heigth: number;
+    res: number;
+    bpp: number;
+};
+
+export interface DpfpddCaptureResultStruct {
+    size: number;
+    success: number;
+    quality: string;
+    score: number;
+    info: DpfpddImageInfoStruct;
+};
+
+export interface DpfpddCaptureStruct extends BaseResultStruct {
+    captureParam: DpfpddCaptureParamStruct;
+    captureResult: DpfpddCaptureResultStruct;
+};
+
+export interface DpfpddCaptureFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        imageFmt: DPFPDD_IMAGE_FMT_TYPE,
+        imageProc: DPFPDD_IMAGE_PROC_TYPE,
+        timeout: number
+    ): Promise<DpfpddCaptureStruct>;
+};
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -166,4 +209,5 @@ export interface UareUInterface {
     dpfpddClose: DpfppdCloseFunc;
     dpfpddGetDeviceStatus: DpfppdGetDeviceStatusFunc;
     dpfpddGetDeviceCapabilities: DpfppdGetDeviceCapabilitiesFunc;
-}
+    dpfpddCapture: DpfpddCaptureFunc;
+};

@@ -6,8 +6,8 @@ import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS } from "./handlers/types/constant/constant.handler";
-import { CaptureCallback, Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct } from "./interfaces/uareu.interfaces";
+import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE } from "./handlers/types/constant/constant.handler";
+import { CaptureCallback, Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 export default class UareU implements UareUInterface {
@@ -156,7 +156,7 @@ export default class UareU implements UareUInterface {
         }
     });
 
-    public dpfpddOpenExt = (readerInfo: ReaderStruct, priority: typeof DPFPDD_PRIORITY.DPFPDD_PRIORITY_COOPERATIVE | typeof DPFPDD_PRIORITY.DPFPDD_PRIORITY_EXCLUSIVE) => new Promise<DpfppdOpenExtStruct>((resolve, reject) => {
+    public dpfpddOpenExt = (readerInfo: ReaderStruct, priority: DPFPDD_PRIORITY_TYPE) => new Promise<DpfppdOpenExtStruct>((resolve, reject) => {
         const name = readerInfo.data.name.buffer;
         const reader = ref.alloc(DPFPDD_DEV.type.toString());
         const res = UareU.dpfpdd.dpfpdd_open_ext(name, priority, reader);
@@ -246,13 +246,8 @@ export default class UareU implements UareUInterface {
         }
     });
 
-    public dpfpddCapture = (
-        reader: any,
-        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
-        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED,
-        timeout: number = 5000,
-    ) => new Promise<any>((resolve, reject) => {
-        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+    public dpfpddCapture = (readerInfo: DpfppdOpenStruct | DpfppdOpenExtStruct, imageFmt: DPFPDD_IMAGE_FMT_TYPE, imageProc: DPFPDD_IMAGE_PROC_TYPE, timeout: number = 5000) => new Promise<DpfpddCaptureStruct>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(readerInfo).then((readerCaps) => {
             const IMAGE_DATA_SIZE = 2048;
             const captureResult = new dpfpdd_capture_result;
             const captureParam = new dpfpdd_capture_param;
@@ -262,9 +257,32 @@ export default class UareU implements UareUInterface {
             captureParam.image_fmt = imageFmt;
             captureParam.image_proc = imageProc;
             captureParam.image_res = readerCaps.deviceCaps.resolutions;
-            const res = UareU.dpfpdd.dpfpdd_capture(reader, captureParam.ref(), timeout, captureResult.ref(), imgSize, imgData);
+            const res = UareU.dpfpdd.dpfpdd_capture(ref.deref(readerInfo.readerHandle), captureParam.ref(), timeout, captureResult.ref(), imgSize, imgData);
             if (res === 0) {
-                resolve(res);
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Image captured. Extended result is in capture_result.',
+                    captureParam: {
+                        size: captureParam.size,
+                        imageFmt: captureParam.image_fmt,
+                        imageProc: captureParam.image_proc,
+                        imageRes: captureParam.image_res
+                    },
+                    captureResult: {
+                        size: captureResult.size,
+                        success: captureResult.success,
+                        quality: captureResult.quality,
+                        score: captureResult.score,
+                        info: {
+                            size: captureResult.info.size,
+                            width: captureResult.info.width,
+                            heigth: captureResult.info.heigth,
+                            res: captureResult.info.res,
+                            bpp: captureResult.info.bpp
+                        }
+                    }
+                }
+                resolve(resObj);
             } else {
                 reject(new ErrorHandler(res));
             }
