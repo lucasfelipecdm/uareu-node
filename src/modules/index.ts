@@ -7,7 +7,7 @@ import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
 import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY } from "./handlers/types/constant/constant.handler";
-import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0 } from "./interfaces/uareu.interfaces";
+import { Fmd, CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 let captureCallback: any;
@@ -261,7 +261,7 @@ export default class UareU implements UareUInterface {
             if (res === 0) {
                 const resObj = {
                     callbackRet: res,
-                    readableRet: 'Image captured. Extended result is in capture_result.',
+                    readableRet: 'Image captured. Extended result is in captureResult.',
                     captureParam: {
                         size: captureParam.size,
                         imageFmt: captureParam.image_fmt,
@@ -350,39 +350,47 @@ export default class UareU implements UareUInterface {
         })
     });
 
-    public dpfpddCancel = (reader: any) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_cancel(reader);
+    public dpfpddCancel = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct) => new Promise<DpfpddCancelStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_cancel(ref.deref(readerHandle));
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Capture canceled.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddStartStream = (reader: any) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_start_stream(reader);
+    public dpfpddStartStream = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct) => new Promise<DpfpddStartStreamStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_start_stream(ref.deref(readerHandle));
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Reader put into streaming mode.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddStopStream = (reader: any) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_stop_stream(reader);
+    public dpfpddStopStream = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct) => new Promise<DpfpddStopStreamStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_stop_stream(ref.deref(readerHandle));
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Streaming was stopped.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddGetStreamImage = (
-        reader: any,
-        imageFmt: typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ISOIEC19794 | typeof DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_PIXEL_BUFFER,
-        imageProc: typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_ENHANCED_2 | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_PIV | typeof DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_UNPROCESSED
-    ) => new Promise<any>((resolve, reject) => {
-        this.dpfpddGetDeviceCapabilities(reader).then((readerCaps) => {
+    public dpfpddGetStreamImage = (readerInfo: DpfppdOpenStruct | DpfppdOpenExtStruct, imageFmt: DPFPDD_IMAGE_FMT_TYPE, imageProc: DPFPDD_IMAGE_PROC_TYPE) => new Promise<DpfpddGetStreamImageStruct>((resolve, reject) => {
+        this.dpfpddGetDeviceCapabilities(readerInfo).then((readerCaps) => {
             const IMAGE_DATA_SIZE = 2048;
             const captureResult = new dpfpdd_capture_result;
             const captureParam = new dpfpdd_capture_param;
@@ -392,9 +400,32 @@ export default class UareU implements UareUInterface {
             captureParam.image_fmt = imageFmt;
             captureParam.image_proc = imageProc;
             captureParam.image_res = readerCaps.deviceCaps.resolutions;
-            const res = UareU.dpfpdd.dpfpdd_get_stream_image(reader, captureParam.ref(), captureResult.ref(), imgSize, imgData);
+            const res = UareU.dpfpdd.dpfpdd_get_stream_image(ref.deref(readerInfo.readerHandle), captureParam.ref(), captureResult.ref(), imgSize, imgData);
             if (res === 0) {
-                resolve(res);
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Image acquired from the stream. Extended result is in captureResult.',
+                    captureParam: {
+                        size: captureParam.size,
+                        imageFmt: captureParam.image_fmt,
+                        imageProc: captureParam.image_proc,
+                        imageRes: captureParam.image_res
+                    },
+                    captureResult: {
+                        size: captureResult.size,
+                        success: captureResult.success,
+                        quality: captureResult.quality,
+                        score: captureResult.score,
+                        info: {
+                            size: captureResult.info.size,
+                            width: captureResult.info.width,
+                            height: captureResult.info.height,
+                            res: captureResult.info.res,
+                            bpp: captureResult.info.bpp
+                        }
+                    }
+                }
+                resolve(resObj);
             } else {
                 reject(new ErrorHandler(res));
             }
@@ -403,19 +434,27 @@ export default class UareU implements UareUInterface {
         })
     });
 
-    public dpfpddReset = (reader: any) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_reset(reader);
+    public dpfpddReset = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct) => new Promise<DpfpddResetStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_reset(ref.deref(readerHandle));
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Reset succeeded.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }
     });
 
-    public dpfpddCalibrate = (reader: any) => new Promise<any>((resolve, reject) => {
-        const res = UareU.dpfpdd.dpfpdd_calibrate(reader);
+    public dpfpddCalibrate = ({ readerHandle }: DpfppdOpenStruct | DpfppdOpenExtStruct) => new Promise<DpfpddCalibrateStruct>((resolve, reject) => {
+        const res = UareU.dpfpdd.dpfpdd_calibrate(ref.deref(readerHandle));
         if (res === 0) {
-            resolve(res);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Calibration succeeded.'
+            }
+            resolve(resObj);
         } else {
             reject(new ErrorHandler(res));
         }

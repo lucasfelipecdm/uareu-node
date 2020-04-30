@@ -23,18 +23,17 @@ uareu.loadLibs()
         console.log(res);
         return uareu.dpfpddOpen(res.devicesList[0]);
     })
-    // .then((res) => {
-    //     console.log(res);
-    //     reader = res;
-    //     return uareu.dpfpddGetDeviceStatus(reader);
-    // })
-    // .then((res) => {
-    //     console.log(res);
-    //     return uareu.dpfpddGetDeviceCapabilities(reader);
-    // })
     .then((res) => {
         reader = res;
         console.log(reader);
+        return uareu.dpfpddReset(reader);
+    })
+    .then((res) => {
+        console.log(res);
+        return uareu.dpfpddCalibrate(reader);
+    })
+    .then((res) => {
+        console.log(res);
         return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 as DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT as DPFPDD_IMAGE_PROC_TYPE, callback);
     })
     .then((res) => {

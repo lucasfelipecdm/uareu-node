@@ -221,6 +221,49 @@ export interface DpfpddCaptureAsyncFunc {
     ): Promise<DpfpddCaptureAsyncStruct>;
 };
 
+export interface DpfpddCancelStruct extends BaseResultStruct { };
+
+export interface DpfpddCancelFunc {
+    (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddCancelStruct>;
+};
+
+export interface DpfpddStartStreamStruct extends BaseResultStruct { };
+
+export interface DpfpddStartStreamFunc {
+    (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddStartStreamStruct>;
+};
+
+export interface DpfpddStopStreamStruct extends BaseResultStruct { };
+
+export interface DpfpddStopStreamFunc {
+    (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddStopStreamStruct>;
+};
+
+export interface DpfpddGetStreamImageStruct extends BaseResultStruct {
+    captureParam: DpfpddCaptureParamStruct;
+    captureResult: DpfpddCaptureResultStruct;
+};
+
+export interface DpfpddGetStreamImageFunc {
+    (
+        reader: DpfppdOpenStruct | DpfppdOpenExtStruct,
+        imageFmt: DPFPDD_IMAGE_FMT_TYPE,
+        imageProc: DPFPDD_IMAGE_PROC_TYPE
+    ): Promise<DpfpddGetStreamImageStruct>;
+};
+
+export interface DpfpddResetStruct extends BaseResultStruct { };
+
+export interface DpfpddResetFunc {
+    (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddResetStruct>;
+};
+
+export interface DpfpddCalibrateStruct extends BaseResultStruct { };
+
+export interface DpfpddCalibrateFunc {
+    (reader: DpfppdOpenStruct | DpfppdOpenExtStruct): Promise<DpfpddCalibrateStruct>;
+};
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -234,4 +277,10 @@ export interface UareUInterface {
     dpfpddGetDeviceCapabilities: DpfppdGetDeviceCapabilitiesFunc;
     dpfpddCapture: DpfpddCaptureFunc;
     dpfpddCaptureAsync: DpfpddCaptureAsyncFunc;
+    dpfpddCancel: DpfpddCancelFunc;
+    dpfpddStartStream: DpfpddStartStreamFunc;
+    dpfpddStopStream: DpfpddStopStreamFunc;
+    dpfpddGetStreamImage: DpfpddGetStreamImageFunc;
+    dpfpddReset: DpfpddResetFunc;
+    dpfpddCalibrate: DpfpddCalibrateFunc;
 };
