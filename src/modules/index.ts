@@ -7,11 +7,12 @@ import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
 import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE } from "./handlers/types/constant/constant.handler";
-import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct } from "./interfaces/uareu.interfaces";
+import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct, DpfjIdentifyStruct, DpfjStartEnrollmentStruct, DpfjAddToEnrollmentStruct, DpfjCreateEnrollmentFmdStruct, DpfjFinishEnrollmentStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 let captureCallback: any;
 export default class UareU implements UareUInterface {
+    private currentEnrollmentFmdFormat: number;
     private static instance: UareU;
     private static dpfpdd: any;
     private static dpfj: any;
@@ -610,64 +611,113 @@ export default class UareU implements UareUInterface {
         }
     });
 
-    // public dpfjIdentify = (fmd1: Fmd, fmdList: Fmd[]) => new Promise<IdentifyResult>((resolve, reject) => {
-    //     const ucharArray = ArrayType('uchar *');
-    //     const uintArray = ArrayType(ref.types.uint);
-    //     const fmdListPointer = new ucharArray(fmdList.length);
-    //     const fmdListSizePointer = new uintArray(fmdList.length);
-    //     fmdList.forEach((fmd, index) => {
-    //         fmdListPointer[index] = fmd.data;
-    //         fmdListSizePointer[index] = fmd.size;
-    //     });
-    //     const candidate = new dpfj_candidate;
-    //     const candidateCnt = ref.alloc(ref.types.uint, 1);
-    //     const falsePositiveRate = DPFJ_PROBABILITY_ONE / 100000;
-    //     const res = UareU.dpfj.dpfj_identify(fmd1.fmdType, fmd1.data, fmd1.size, 0, fmdList[0].fmdType, fmdList.length, fmdListPointer.buffer, fmdListSizePointer.buffer, falsePositiveRate, candidateCnt, candidate.ref());
-    //     if (res === 0) {
-    //         resolve({ index: candidateCnt.readUInt8() === 0 ? 'No finger match.' : candidate.fmd_idx });
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjIdentify = (fmd: DpfjCreateFmdFromFidStruct, fmdList: DpfjCreateFmdFromFidStruct[]) => new Promise<DpfjIdentifyStruct>((resolve, reject) => {
+        const ucharArray = ArrayType('uchar *');
+        const uintArray = ArrayType(ref.types.uint);
+        const fmdListPointer = new ucharArray(fmdList.length);
+        const fmdListSizePointer = new uintArray(fmdList.length);
+        fmdList.forEach((fmdObj, index) => {
+            fmdListPointer[index] = fmdObj.fmd;
+            fmdListSizePointer[index] = fmdObj.size;
+        });
+        const candidate = new dpfj_candidate;
+        const candidateCnt = ref.alloc(ref.types.uint, 1);
+        const falsePositiveRate = DPFJ_PROBABILITY_ONE / 100000;
+        const res = UareU.dpfj.dpfj_identify(fmd.typeCode, fmd.fmd, fmd.size, 0, fmdList[0].typeCode, fmdList.length, fmdListPointer.buffer, fmdListSizePointer.buffer, falsePositiveRate, candidateCnt, candidate.ref());
+        if (res === 0) {
+            if (candidateCnt.readUInt8() === 0) {
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Identification finished.',
+                    resultMessage: 'No finger match.',
+                    fmdCandidateIndex: -1
+                };
+                resolve(resObj);
+            } else {
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'Identification finished.',
+                    resultMessage: `Finger found.`,
+                    fmdCandidateIndex: candidate.fmd_idx
+                };
+                resolve(resObj);
+            }
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 
-    // public dpfjStartEnrollment = (fmdType: number) => new Promise<number>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_start_enrollment(fmdType);
-    //     if (res === 0) {
-    //         resolve(res);
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjStartEnrollment = (fmdType: DPFJ_FMD_FORMAT_TYPE) => new Promise<DpfjStartEnrollmentStruct>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_start_enrollment(fmdType);
+        UareU.getInstance().currentEnrollmentFmdFormat = fmdType;
+        if (res === 0) {
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Enrollment started.',
+                type: keyByValue(DPFJ_FMD_FORMAT, fmdType)!,
+                typeCode: fmdType
+            };
+            resolve(resObj);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 
-    // public dpfjAddToEnrollment = (fmd: Fmd) => new Promise<number>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.fmdType, fmd.data, fmd.size, 0);
-    //     const errorCode = res.toString(16).slice(-3);
-    //     if (res === 0 || errorCode === '00d') {
-    //         resolve(res);
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjAddToEnrollment = (fmd: DpfjCreateFmdFromFidStruct) => new Promise<DpfjAddToEnrollmentStruct>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_add_to_enrollment(fmd.typeCode, fmd.fmd, fmd.size, 0);
+        const errorCode = res.toString(16).slice(-3);
+        if (res === 0 || errorCode === '00d') {
+            if (res === 0) {
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'FMD added, enrollment is ready.',
+                    resultMessage: 'The fmd is complete, use dpfjCreateEnrollmentFmd to finish the process.'
+                };
+                resolve(resObj);
+            } else {
+                const resObj = {
+                    callbackRet: res,
+                    readableRet: 'FMD added, more FMDs for enrollment required.',
+                    resultMessage: 'The fmd need more data, put the same finger again on reader.'
+                };
+                resolve(resObj);
+            }
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 
-    // public dpfjCreateEnrollmentFmd = () => new Promise<any>((resolve, reject) => {
-    //     const fmd = Buffer.alloc(MAX_FMD_SIZE);
-    //     const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
-    //     const res = UareU.dpfj.dpfj_create_enrollment_fmd(fmd, fmdSize);
-    //     if (res === 0) {
-    //         resolve(fmd);
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjCreateEnrollmentFmd = () => new Promise<DpfjCreateEnrollmentFmdStruct>((resolve, reject) => {
+        const fmd = Buffer.alloc(MAX_FMD_SIZE);
+        const fmdSize = ref.alloc(ref.types.uint, MAX_FMD_SIZE);
+        const res = UareU.dpfj.dpfj_create_enrollment_fmd(fmd, fmdSize);
+        if (res === 0) {
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'FMD was created.',
+                size: ref.deref(fmdSize),
+                type: keyByValue(DPFJ_FMD_FORMAT, UareU.getInstance().currentEnrollmentFmdFormat)!,
+                typeCode: UareU.getInstance().currentEnrollmentFmdFormat,
+                fmd: fmd
+            }
+            resolve(resObj);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 
-    // public dpfjFinishEnrollment = () => new Promise<number>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_finish_enrollment();
-    //     if (res === 0) {
-    //         resolve(res);
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjFinishEnrollment = () => new Promise<DpfjFinishEnrollmentStruct>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_finish_enrollment();
+        if (res === 0) {
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Enrollment ended.'
+            };
+            resolve(resObj);
+        } else {
+            reject(new ErrorHandler(res));
+        }
+    });
 
     // public dpfjFmdConvert = (fmd: Fmd, toFormat: number) => new Promise<Fmd>((resolve, reject) => {
     //     const fmdOut = Buffer.alloc(MAX_FMD_SIZE);

@@ -331,26 +331,71 @@ export interface DpfjCreateFmdFromFidStruct extends BaseResultStruct {
     type: string;
     typeCode: number,
     fmd: any;
-}
+};
 
 export interface DpfjCreateFmdFromFidFunc {
     (
         captureData: DpfpddCaptureCallbackData0,
         fmdFormat: DPFJ_FMD_FORMAT_TYPE
     ): Promise<DpfjCreateFmdFromFidStruct>
-}
+};
 
 export interface DpfjCompareStruct extends BaseResultStruct {
     resultMessage: string;
     dissimilarityScore: number;
-}
+};
 
 export interface DpfjCompareFunc {
     (
         fmd1: DpfjCreateFmdFromFidStruct,
         fmd2: DpfjCreateFmdFromFidStruct,
     ): Promise<DpfjCompareStruct>
-}
+};
+
+export interface DpfjIdentifyStruct extends BaseResultStruct {
+    resultMessage: string;
+    fmdCandidateIndex: number;
+};
+
+export interface DpfjIdentifyFunc {
+    (
+        fmd: DpfjCreateFmdFromFidStruct,
+        fmdList: DpfjCreateFmdFromFidStruct[],
+    ): Promise<DpfjIdentifyStruct>
+};
+
+export interface DpfjStartEnrollmentStruct extends BaseResultStruct {
+    type: string;
+    typeCode: number,
+};
+
+export interface DpfjStartEnrollmentFunc {
+    (
+        fmdFormat: DPFJ_FMD_FORMAT_TYPE
+    ): Promise<DpfjStartEnrollmentStruct>
+};
+
+export interface DpfjAddToEnrollmentStruct extends BaseResultStruct {
+    resultMessage: string;
+};
+
+export interface DpfjAddToEnrollmentFunc {
+    (
+        fmd: DpfjCreateFmdFromFidStruct
+    ): Promise<DpfjAddToEnrollmentStruct>
+};
+
+export interface DpfjCreateEnrollmentFmdStruct extends DpfjCreateFmdFromFidStruct { };
+
+export interface DpfjCreateEnrollmentFmdFunc {
+    (): Promise<DpfjCreateEnrollmentFmdStruct>
+};
+
+export interface DpfjFinishEnrollmentStruct extends BaseResultStruct { };
+
+export interface DpfjFinishEnrollmentFunc {
+    (): Promise<DpfjFinishEnrollmentStruct>
+};
 
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
@@ -380,4 +425,9 @@ export interface UareUInterface {
     // dpfjCreateFmdFromRaw: DpfjCreateFmdFromRawFunc;
     dpfjCreateFmdFromFid: DpfjCreateFmdFromFidFunc;
     dpfjCompare: DpfjCompareFunc;
+    dpfjIdentify: DpfjIdentifyFunc;
+    dpfjStartEnrollment: DpfjStartEnrollmentFunc;
+    dpfjAddToEnrollment: DpfjAddToEnrollmentFunc;
+    dpfjCreateEnrollmentFmd: DpfjCreateEnrollmentFmdFunc;
+    dpfjFinishEnrollment: DpfjFinishEnrollmentFunc;
 };
