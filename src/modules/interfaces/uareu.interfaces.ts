@@ -1,4 +1,4 @@
-import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE } from './../handlers/types/constant/constant.handler';
+import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE, DPFJ_FID_FORMAT_TYPE } from './../handlers/types/constant/constant.handler';
 
 export interface IdentifyResult {
     index: number | string;
@@ -397,6 +397,49 @@ export interface DpfjFinishEnrollmentFunc {
     (): Promise<DpfjFinishEnrollmentStruct>
 };
 
+export interface DpfjFmdConvertStruct extends DpfjCreateFmdFromFidStruct { };
+
+export interface DpfjFmdConvertFunc {
+    (
+        fmd: DpfjCreateFmdFromFidStruct,
+        fmdFormat: DPFJ_FMD_FORMAT_TYPE
+    ): Promise<DpfjFmdConvertStruct>
+};
+
+export interface DpfjFidRecordParamsStruct {
+    recordLength: number;
+    cbeffId: number;
+    captureDeviceId: number;
+    acquisitionLevel: number;
+    fingerCnt: number;
+    scaleUnits: number;
+    scanRes: number;
+    imageRes: number;
+    bpp: number;
+    compression: number;
+}
+
+export interface DpfjGetFidRecordParamsStruct extends BaseResultStruct {
+    params: DpfjFidRecordParamsStruct;
+}
+
+export interface DpfjGetFidRecordParamsFunc {
+    (
+        fidFmt: DPFJ_FID_FORMAT_TYPE,
+        captureData: DpfpddCaptureCallbackData0
+    ): Promise<DpfjGetFidRecordParamsStruct>
+}
+
+export interface DpfjSetFidRecordParamsStruct extends BaseResultStruct { }
+
+export interface DpfjSetFidRecordParamsFunc {
+    (
+        fidFmt: DPFJ_FID_FORMAT_TYPE,
+        captureData: DpfpddCaptureCallbackData0,
+        params: DpfjFidRecordParamsStruct
+    ): Promise<DpfjSetFidRecordParamsStruct>
+}
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -430,4 +473,9 @@ export interface UareUInterface {
     dpfjAddToEnrollment: DpfjAddToEnrollmentFunc;
     dpfjCreateEnrollmentFmd: DpfjCreateEnrollmentFmdFunc;
     dpfjFinishEnrollment: DpfjFinishEnrollmentFunc;
+    dpfjFmdConvert: DpfjFmdConvertFunc;
+    // dpfjDpFidConvert: DpfjDpFidConvertFunc;
+    // dpfjRawConvert: DpfjRawConvertFunc;
+    dpfjGetFidRecordParams: DpfjGetFidRecordParamsFunc;
+    dpfjSetFidRecordParams: DpfjSetFidRecordParamsFunc;
 };
