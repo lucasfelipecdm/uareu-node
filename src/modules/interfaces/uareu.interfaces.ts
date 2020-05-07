@@ -440,6 +440,49 @@ export interface DpfjSetFidRecordParamsFunc {
     ): Promise<DpfjSetFidRecordParamsStruct>
 }
 
+export interface DpfjGetFidViewOffsetStruct extends BaseResultStruct {
+    view: any;
+}
+
+export interface DpfjGetFidViewOffsetFunc {
+    (
+        fidFmt: DPFJ_FID_FORMAT_TYPE,
+        captureData: DpfpddCaptureCallbackData0,
+        viewIndex: number
+    ): Promise<DpfjGetFidViewOffsetStruct>
+}
+
+export interface DpfjFidViewParamsStruct {
+    dataLength: number;
+    fingerPosition: string;
+    viewCnt: number;
+    viewNumber: number;
+    quality: number;
+    impressionType: string;
+    width: number;
+    height: number;
+    view_data: any;
+}
+
+export interface DpfjGetFidViewParamsStruct extends BaseResultStruct {
+    params: DpfjFidViewParamsStruct;
+}
+
+export interface DpfjGetFidViewParamsFunc {
+    (
+        view: DpfjGetFidViewOffsetStruct
+    ): Promise<DpfjGetFidViewParamsStruct>
+}
+
+export interface DpfjSetFidViewParamsStruct extends BaseResultStruct { }
+
+export interface DpfjSetFidViewParamsFunc {
+    (
+        view: DpfjGetFidViewOffsetStruct,
+        params: DpfjFidViewParamsStruct
+    ): Promise<DpfjSetFidViewParamsStruct>
+}
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -478,4 +521,7 @@ export interface UareUInterface {
     // dpfjRawConvert: DpfjRawConvertFunc;
     dpfjGetFidRecordParams: DpfjGetFidRecordParamsFunc;
     dpfjSetFidRecordParams: DpfjSetFidRecordParamsFunc;
+    dpfjGetFidViewOffset: DpfjGetFidViewOffsetFunc;
+    dpfjGetFidViewParams: DpfjGetFidViewParamsFunc;
+    dpfjSetFidViewParams: DpfjSetFidViewParamsFunc;
 };

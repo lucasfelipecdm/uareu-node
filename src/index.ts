@@ -7,7 +7,7 @@ const uareu = UareU.getInstance();
 const callback: DpfpddCaptureCallbackFunc = (data: DpfpddCaptureCallbackData0, dataSize: number) => {
     console.log("\x1b[33m", `[${new Date().toLocaleTimeString()}] Finger captured.`, "\x1b[0m");
     if (data.data.capture_result.quality === 0) {
-        uareu.dpfjGetFidRecordParams(DPFJ_FID_FORMAT.DPFJ_FID_ANSI_381_2004 as DPFJ_FID_FORMAT_TYPE, data)
+        uareu.dpfjGetFidViewOffset(DPFJ_FID_FORMAT.DPFJ_FID_ANSI_381_2004 as DPFJ_FID_FORMAT_TYPE, data, 0)
             .then((res) => console.log(res))
             .catch((err) => console.log(err));
     }
