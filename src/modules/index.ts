@@ -7,7 +7,7 @@ import ErrorHandler from "./handlers/error/error.handler";
 import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
 import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE, DPFJ_FID_FORMAT_TYPE } from "./handlers/types/constant/constant.handler";
-import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct, DpfjIdentifyStruct, DpfjStartEnrollmentStruct, DpfjAddToEnrollmentStruct, DpfjCreateEnrollmentFmdStruct, DpfjFinishEnrollmentStruct, DpfjFmdConvertStruct, DpfjGetFidRecordParamsStruct, DpfjSetFidRecordParamsStruct, DpfjFidRecordParamsStruct, DpfjGetFidViewOffsetStruct, DpfjGetFidViewParamsStruct, DpfjFidViewParamsStruct, DpfjSetFidViewParamsStruct } from "./interfaces/uareu.interfaces";
+import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct, DpfjIdentifyStruct, DpfjStartEnrollmentStruct, DpfjAddToEnrollmentStruct, DpfjCreateEnrollmentFmdStruct, DpfjFinishEnrollmentStruct, DpfjFmdConvertStruct, DpfjGetFidRecordParamsStruct, DpfjSetFidRecordParamsStruct, DpfjFidRecordParamsStruct, DpfjGetFidViewOffsetStruct, DpfjGetFidViewParamsStruct, DpfjFidViewParamsStruct, DpfjSetFidViewParamsStruct, DpfjGetFmdRecordParamsStruct, DpfjSetFmdRecordParamsStruct, DpfjFmdRecordParamsStruct, DpfjGetFmdViewOffsetStruct, DpfjGetFmdViewParamsStruct, DpfjFmdViewParamsStruct, DpfjSetFmdViewParamsStruct } from "./interfaces/uareu.interfaces";
 import keyByValue from './handlers/types/constant/constant.utils';
 
 let captureCallback: any;
@@ -803,7 +803,7 @@ export default class UareU implements UareUInterface {
         const resObj = {
             callbackRet: res,
             readableRet: 'Data from the specified view from FID',
-            view: ref.deref(res)
+            view: res
         }
         resolve(resObj);
     });
@@ -848,52 +848,90 @@ export default class UareU implements UareUInterface {
         resolve(resObj);
     });
 
-    // public dpfjGetFmdRecordParams = (fmdType: number, fmd: Fmd) => new Promise<void>((resolve, reject) => {
-    //     const params = new dpfj_fmd_record_params;
-    //     const res = UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.data, params.ref());
-    //     if (res === 0) {
-    //         resolve();
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjGetFmdRecordParams = (fmdType: DPFJ_FMD_FORMAT_TYPE, fmd: DpfjCreateFmdFromFidStruct) => new Promise<DpfjGetFmdRecordParamsStruct>((resolve) => {
+        const params = new dpfj_fmd_record_params;
+        UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.fmd, params.ref());
+        const resObj = {
+            callbackRet: 0,
+            readableRet: 'Fmd records params obtained.',
+            params: {
+                recordLength: params.record_length,
+                cbeffId: params.cbeff_id,
+                captureEquipmentComp: params.capture_equipment_comp,
+                captureEquipmentId: params.capture_equipment_id,
+                width: params.width,
+                height: params.height,
+                resolution: params.resolution,
+                viewCnt: params.view_cnt
+            }
+        }
+        resolve(resObj);
+    });
 
-    // public dpfjSetFmdRecordParams = (fmdType: number, fmd: Fmd, params: Buffer) => new Promise<void>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_set_fmd_record_params(params, fmdType, fmd.data);
-    //     if (res === 0) {
-    //         resolve();
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjSetFmdRecordParams = (fmdType: DPFJ_FMD_FORMAT_TYPE, fmd: DpfjCreateFmdFromFidStruct, params: DpfjFmdRecordParamsStruct) => new Promise<DpfjSetFmdRecordParamsStruct>((resolve) => {
+        const paramsBuffer = new dpfj_fmd_record_params;
+        paramsBuffer.record_length = params.recordLength;
+        paramsBuffer.cbeff_id = params.cbeffId;
+        paramsBuffer.capture_equipment_comp = params.captureEquipmentComp;
+        paramsBuffer.capture_equipment_id = params.captureEquipmentId;
+        paramsBuffer.width = params.width;
+        paramsBuffer.height = params.height;
+        paramsBuffer.resolution = params.resolution;
+        paramsBuffer.view_cnt = params.viewCnt;
+        UareU.dpfj.dpfj_get_fmd_record_params(fmdType, fmd.fmd, paramsBuffer.ref());
+        const resObj = {
+            callbackRet: 0,
+            readableRet: 'Fmd records params setted.',
+        }
+        resolve(resObj);
+    });
 
-    // public dpfjGetFmdViewOffset = (fmdType: number, fmd: any, viewIndex: number) => new Promise<number>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_get_fmd_view_offset(fmdType, fmd.data, viewIndex);
-    //     if (res === 0) {
-    //         resolve(res);
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjGetFmdViewOffset = (fmdType: DPFJ_FMD_FORMAT_TYPE, fmd: DpfjCreateFmdFromFidStruct, viewIndex: number) => new Promise<DpfjGetFmdViewOffsetStruct>((resolve, reject) => {
+        const res = UareU.dpfj.dpfj_get_fmd_view_offset(fmdType, fmd.fmd, viewIndex);
+        const resObj = {
+            callbackRet: 0,
+            readableRet: 'Data from the specified view from FMD',
+            view: res
+        }
+        resolve(resObj);
+    });
 
-    // public dpfjGetFmdViewParams = (fmd: any) => new Promise<void>((resolve, reject) => {
-    //     const params = new dpfj_fmd_view_params;
-    //     const res = UareU.dpfj.dpfj_get_fmd_view_params(fmd.data, params.ref());
-    //     if (res === 0) {
-    //         resolve();
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjGetFmdViewParams = (view: DpfjGetFmdViewOffsetStruct) => new Promise<DpfjGetFmdViewParamsStruct>((resolve) => {
+        const params = new dpfj_fmd_view_params;
+        UareU.dpfj.dpfj_get_fmd_view_params(view.view, params.ref());
+        const resObj = {
+            callbackRet: 0,
+            readableRet: 'Data from the specified view from FMD',
+            params: {
+                fingerPosition: params.finger_position,
+                viewNumber: params.view_number,
+                impressionType: params.impression_type,
+                quality: params.quality,
+                minutiaCnt: params.minutia_cnt,
+                extBlockLength: params.ext_block_length,
+                extBlock: params.ext_block
+            }
+        }
+        resolve(resObj);
+    });
 
-    // public dpfjSetFmdViewParams = (fmd: any, params: Buffer) => new Promise<void>((resolve, reject) => {
-    //     const res = UareU.dpfj.dpfj_set_fmd_view_params(fmd.data, params);
-    //     if (res === 0) {
-    //         resolve();
-    //     } else {
-    //         reject(new ErrorHandler(res));
-    //     }
-    // });
+    public dpfjSetFmdViewParams = (view: DpfjGetFmdViewOffsetStruct, params: DpfjFmdViewParamsStruct) => new Promise<DpfjSetFmdViewParamsStruct>((resolve, reject) => {
+        const paramsBuffer = new dpfj_fmd_view_params;
+        paramsBuffer.finger_position = params.fingerPosition;
+        paramsBuffer.view_number = params.viewNumber;
+        paramsBuffer.impression_type = params.impressionType;
+        paramsBuffer.quality = params.quality;
+        paramsBuffer.minutia_cnt = params.minutiaCnt;
+        paramsBuffer.ext_block_length = params.extBlockLength;
+        paramsBuffer.ext_block = params.extBlock;
+
+        UareU.dpfj.dpfj_set_fmd_view_params(paramsBuffer.ref(), view.view);
+        const resObj = {
+            callbackRet: 0,
+            readableRet: 'Data from the specified view from FMD',
+        }
+        resolve(resObj);
+    });
 };
 
 process.on('exit', function () {

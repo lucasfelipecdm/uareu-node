@@ -7,9 +7,17 @@ const uareu = UareU.getInstance();
 const callback: DpfpddCaptureCallbackFunc = (data: DpfpddCaptureCallbackData0, dataSize: number) => {
     console.log("\x1b[33m", `[${new Date().toLocaleTimeString()}] Finger captured.`, "\x1b[0m");
     if (data.data.capture_result.quality === 0) {
-        uareu.dpfjGetFidViewOffset(DPFJ_FID_FORMAT.DPFJ_FID_ANSI_381_2004 as DPFJ_FID_FORMAT_TYPE, data, 0)
-            .then((res) => console.log(res))
-            .catch((err) => console.log(err));
+        uareu.dpfjCreateFmdFromFid(data, DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004 as DPFJ_FMD_FORMAT_TYPE)
+            .then((res) => {
+                return uareu.dpfjAddToEnrollment(res);
+                // return uareu.dpfjGetFmdRecordParams(DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004 as DPFJ_FMD_FORMAT_TYPE, res);
+            })
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 }
 
@@ -30,6 +38,10 @@ uareu.loadLibs()
     })
     .then((res) => {
         reader = res;
+        console.log(res);
+        return uareu.dpfjStartEnrollment(DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004 as DPFJ_FMD_FORMAT_TYPE);
+    })
+    .then((res) => {
         console.log(res);
         return uareu.dpfpddCaptureAsync(reader, DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381 as DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT as DPFPDD_IMAGE_PROC_TYPE, callback);
     })

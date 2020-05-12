@@ -483,6 +483,79 @@ export interface DpfjSetFidViewParamsFunc {
     ): Promise<DpfjSetFidViewParamsStruct>
 }
 
+export interface DpfjFmdRecordParamsStruct {
+    recordLength: number;
+    cbeffId: number;
+    captureEquipmentComp: number;
+    captureEquipmentId: number;
+    width: number;
+    height: number;
+    resolution: number;
+    viewCnt: number;
+}
+
+export interface DpfjGetFmdRecordParamsStruct extends BaseResultStruct {
+    params: DpfjFmdRecordParamsStruct;
+}
+
+export interface DpfjGetFmdRecordParamsFunc {
+    (
+        fmddFmt: DPFJ_FMD_FORMAT_TYPE,
+        fdm: DpfjCreateFmdFromFidStruct
+    ): Promise<DpfjGetFmdRecordParamsStruct>
+}
+
+export interface DpfjSetFmdRecordParamsStruct extends BaseResultStruct { }
+
+export interface DpfjSetFmdRecordParamsFunc {
+    (
+        fmdFmt: DPFJ_FMD_FORMAT_TYPE,
+        fmd: DpfjCreateFmdFromFidStruct,
+        params: DpfjFmdRecordParamsStruct
+    ): Promise<DpfjSetFmdRecordParamsStruct>
+}
+
+export interface DpfjGetFmdViewOffsetStruct extends BaseResultStruct {
+    view: any;
+}
+
+export interface DpfjGetFmdViewOffsetFunc {
+    (
+        fmdFmt: DPFJ_FMD_FORMAT_TYPE,
+        fmd: DpfjCreateFmdFromFidStruct,
+        index: number
+    ): Promise<DpfjGetFmdViewOffsetStruct>
+}
+
+export interface DpfjFmdViewParamsStruct {
+    fingerPosition: string;
+    viewNumber: number;
+    impressionType: string;
+    quality: number;
+    minutiaCnt: number;
+    extBlockLength: number;
+    extBlock: number;
+}
+
+export interface DpfjGetFmdViewParamsStruct extends BaseResultStruct {
+    params: DpfjFmdViewParamsStruct;
+}
+
+export interface DpfjGetFmdViewParamsFunc {
+    (
+        view: DpfjGetFmdViewOffsetStruct
+    ): Promise<DpfjGetFmdViewParamsStruct>
+}
+
+export interface DpfjSetFmdViewParamsStruct extends BaseResultStruct { }
+
+export interface DpfjSetFmdViewParamsFunc {
+    (
+        view: DpfjGetFmdViewOffsetStruct,
+        params: DpfjFmdViewParamsStruct
+    ): Promise<DpfjSetFmdViewParamsStruct>
+}
+
 export interface UareUInterface {
     loadLibs: LoadLibsFunc;
     dpfpddVersion: DpfppdVersionFunc;
@@ -524,4 +597,9 @@ export interface UareUInterface {
     dpfjGetFidViewOffset: DpfjGetFidViewOffsetFunc;
     dpfjGetFidViewParams: DpfjGetFidViewParamsFunc;
     dpfjSetFidViewParams: DpfjSetFidViewParamsFunc;
+    dpfjGetFmdRecordParams: DpfjGetFmdRecordParamsFunc;
+    dpfjSetFmdRecordParams: DpfjSetFmdRecordParamsFunc;
+    dpfjGetFmdViewOffset: DpfjGetFmdViewOffsetFunc;
+    dpfjGetFmdViewParams: DpfjGetFmdViewParamsFunc;
+    dpfjSetFmdViewParams: DpfjSetFmdViewParamsFunc;
 };
