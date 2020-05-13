@@ -12,13 +12,20 @@
     "test": "jest --config jest.config.js",
     "build": "tsc",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "preversion": "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lucasfelipecdm/uareu-node.git"
   },
-  "keywords": [],
+  "keywords": [
+    "uareu",
+    "biometric",
+    "digitalpersona",
+    "fingerprint",
+    "uareu 4500"
+  ],
   "author": "Lucas Felipe Costa da Mata",
   "license": "ISC",
   "devDependencies": {
