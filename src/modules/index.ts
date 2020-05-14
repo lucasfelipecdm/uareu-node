@@ -517,7 +517,7 @@ export default class UareU implements UareUInterface {
 
     public dpfjVersion = () => new Promise<DpfjVersionStruct>((resolve, reject) => {
         const ver = new dpfj_version;
-        const res = UareU.dpfj.dpfj_version(dpfj_version.ref());
+        const res = UareU.dpfj.dpfj_version(ver.ref());
         if (res === 0) {
             const verObj = {
                 callbackRet: res,
