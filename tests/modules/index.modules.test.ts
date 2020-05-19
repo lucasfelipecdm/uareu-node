@@ -8,17 +8,12 @@ test('Get instance of UareU singleton class ', async () => {
 
 test('Get instance of UareU singleton class and load libs passing right paths', async () => {
     const uareu = UareU.getInstance();
-    await expect(uareu.loadLibs('bin/dpfpdd', 'bin/dpfj')).resolves.toBe('SUCCESS');
-});
-
-test('Get instance of UareU singleton class and load libs passing wrongs paths', async () => {
-    const uareu = UareU.getInstance();
-    await expect(uareu.loadLibs('binX/dpfpdd', 'binX/dpfj')).rejects.toThrow();
+    await expect(uareu.loadLibs('bin/dpfpdd', 'bin/dpfj')).resolves.toBe(0);
 });
 
 test('Get instance of UareU singleton class and load libs passing without paths', async () => {
     const uareu = UareU.getInstance();
-    await expect(uareu.loadLibs()).resolves.toBe('SUCCESS');
+    await expect(uareu.loadLibs()).resolves.toBe(0);
 });
 
 test('Try get DPFPDD Version using dpfpddVersion function from UareU class expect toThrow', async () => {
@@ -30,14 +25,22 @@ test('Try get DPFPDD Version using dpfpddVersion function from UareU class expec
 test('Init DPFPDD using dpfpddInit function from UareU class', async () => {
     const uareu = UareU.getInstance();
     await uareu.loadLibs('bin/dpfpdd', 'bin/dpfj');
-    await expect(uareu.dpfpddInit()).resolves.toBe(0);
+
+    const initResult = await uareu.dpfpddInit();
+
+    expect(initResult.callbackRet).toBe(0);
+    expect(initResult.readableRet).toBe('Library was initialized.');
 });
 
 test('Init DPFPDD using dpfpddExit function from UareU class', async () => {
     const uareu = UareU.getInstance();
     await uareu.loadLibs('bin/dpfpdd', 'bin/dpfj');
     await uareu.dpfpddInit();
-    await expect(uareu.dpfpddExit()).resolves.toBe(0);
+
+    const exitResult = await uareu.dpfpddExit();
+
+    expect(exitResult.callbackRet).toBe(0);
+    expect(exitResult.readableRet).toBe('Library was released.');
 });
 
 test('Get list of reader devices connected using dpfpddQueryDevices function from UareU class', async () => {

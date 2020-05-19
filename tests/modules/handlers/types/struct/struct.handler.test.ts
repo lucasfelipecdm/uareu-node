@@ -201,7 +201,7 @@ test('Create dpfpdd_capture_callback_data_0 struct type', () => {
     expect(struct.capture_result.info.bpp).toBe(0);
 
     expect(struct.image_size).toBe(0);
-    expect(struct.image_data).toBe(0);
+    expect(struct.image_data).toMatchObject({type: { alignment: 1, name: "char"}})
 });
 
 test('Create dpfpdd_iomap struct type', () => {
