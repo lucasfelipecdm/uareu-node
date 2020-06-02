@@ -44,9 +44,9 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "ffi-napi": "^2.5.0",
-    "ref-array-napi": "^1.2.0",
+    "ffi-napi": "^3.0.1",
     "ref-napi": "^1.5.2",
+    "ref-array-napi": "^1.2.1",
     "ref-struct-napi": "^1.1.1"
   }
 }
