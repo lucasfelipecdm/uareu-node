@@ -294,7 +294,7 @@ export default class UareU implements UareUInterface {
 
     public dpfpddCaptureAsync = (readerInfo: DpfppdOpenStruct | DpfppdOpenExtStruct, imageFmt: DPFPDD_IMAGE_FMT_TYPE, imageProc: DPFPDD_IMAGE_PROC_TYPE, callback: DpfpddCaptureCallbackFunc) => new Promise<DpfpddCaptureAsyncStruct>((resolve, reject) => {
         this.dpfpddGetDeviceCapabilities(readerInfo).then((readerCaps) => {
-            captureCallback = ffi.Callback('void', ['pointer', 'int', 'int', 'pointer'], (ctx: any, rsv: number, dtSize: number, dt: any) => {
+            captureCallback = ffi.Callback('void', ['pointer', 'uint', 'uint', 'pointer'], (ctx: any, rsv: number, dtSize: number, dt: Buffer) => {
                 const dtReinterpreted = new dpfpdd_capture_callback_data_0(ref.reinterpret(dt, dtSize));
                 const dtObj = {
                     size: dtReinterpreted.size,
