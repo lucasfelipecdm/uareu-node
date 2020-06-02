@@ -1,19 +1,19 @@
 # uareu-node &middot; [![npm version](https://img.shields.io/npm/v/uareu-node.svg?style=flat)](https://www.npmjs.com/package/uareu-node) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/lucasfelipecdm/uareu-node/blob/master/LICENSE)
 
-`uareu-node` is a typescript library that aims to communicate the application created in nodejs with the DLL / SO of the DPFJ and DPFPDD libraries created by [DigitalPersona / HID Global](https://www.hidglobal.com.br/products/software/activid/digitalpersona).
+`uareu-node` is a typescript library that aims to allow communication between a nodejs application and the DLL / SO of the DPFJ and DPFPDD libraries created by [DigitalPersona / HID Global](https://www.hidglobal.com.br/products/software/activid/digitalpersona).
 
 * **Attention:** 
 
     - This library has only been tested in this environment(s):
         - SO: **Windows**;
-        - Architecture: **64x**;
-        - NodeJS: [**12.17.0(64x)**, **12.13.0(32x)**];
+        - Architecture: **x64**;
+        - NodeJS: [**12.17.0(x64)**, **12.13.0(x32)**];
 
     - This library does not replace the original library provided by HID Global, only facilities the communication between it and the aplication.
 
     - Originally this library was created to a specific device (_**Digital Persona 4500 Fingerprint Reader**_), but while we were running the tests, another device worked (_**Synaptics FP sensor**_) a device built into the laptop.
 
-    - If using the **32x** _dpfj_ and _dpfpdd_ libraries, use a **32x** node version, if using **64x**, use a **64x** node version. :)
+    - If using the **x32** _dpfj_ and _dpfpdd_ libraries, use a **x32** node version, if using **x64**, use a **x64** node version. :)
 
 ## Requirements
 
@@ -28,7 +28,7 @@
         │   └── ...                 # etc.
         └── ...
         
-  - If you want to keep the libraries files in another place, when load the library, will need provide the path of the libraries.
+  - If you choose to keep the library files in another location, when loading the library you must provide the path to the libraries.
     - Example:
         ```js
             // You just need to specific the path if the libs are not in a 'bin' folder at root.
