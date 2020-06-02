@@ -1,6 +1,6 @@
 {
   "name": "uareu-node",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A nodejs library to communicate with DigitalPersona 4500 biometric.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
