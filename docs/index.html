@@ -1,0 +1,252 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>uareu-node</title>
+	<meta name="description" content="Documentation for uareu-node">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">uareu-node</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>uareu-node</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#uareu-node-middot--" id="uareu-node-middot--" style="color: inherit; text-decoration: none;">
+					<h1>uareu-node &middot; <a href="https://www.npmjs.com/package/uareu-node"><img src="https://img.shields.io/npm/v/uareu-node.svg?style=flat" alt="npm version"></a> <a href="https://github.com/lucasfelipecdm/uareu-node/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="GitHub license"></a></h1>
+				</a>
+				<p><code>uareu-node</code> is a typescript library that aims to allow communication between a nodejs application and the DLL / SO of the DPFJ and DPFPDD libraries created by <a href="https://www.hidglobal.com.br/products/software/activid/digitalpersona">DigitalPersona / HID Global</a>.</p>
+				<ul>
+					<li><p><strong>Attention:</strong> </p>
+						<ul>
+							<li><p>This library has only been tested in this environment(s):</p>
+								<ul>
+									<li>SO: <strong>Windows</strong>;</li>
+									<li>Architecture: <strong>x64</strong>;</li>
+									<li>NodeJS: [<strong>12.17.0(x64)</strong>, <strong>12.13.0(x32)</strong>];</li>
+								</ul>
+							</li>
+							<li><p>This library does not replace the original library provided by HID Global, only facilities the communication between it and the aplication.</p>
+							</li>
+							<li><p>Originally this library was created to a specific device (<em><strong>Digital Persona 4500 Fingerprint Reader</strong></em>), but while we were running the tests, another device worked (<em><strong>Synaptics FP sensor</strong></em>) a device built into the laptop.</p>
+							</li>
+							<li><p>If using the <strong>x32</strong> <em>dpfj</em> and <em>dpfpdd</em> libraries, use a <strong>x32</strong> node version, if using <strong>x64</strong>, use a <strong>x64</strong> node version. :)</p>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#requirements" id="requirements" style="color: inherit; text-decoration: none;">
+					<h2>Requirements</h2>
+				</a>
+				<ul>
+					<li><p><em><strong>A Digital Persona 4500 Fingerprint Reader</strong></em> or similar;</p>
+					</li>
+					<li><p><strong><a href="#"><em>dpfj.dll</em></a>, <a href="#"><em>dpfpdd.dll</em></a></strong> for <strong>Windows</strong>, and <strong><a href="#"><em>dpfj.so</em></a>, <a href="#"><em>dpfpdd.so</em></a></strong> for <strong>Linux</strong>, both should be located in a folder named &quot;bin&quot; at the root of the project.</p>
+						<a href="#" id="" style="color: inherit; text-decoration: none;">
+							<h3></h3>
+						</a>
+						<pre><code>.
+├── <span class="hljs-string">...</span>
+├── bin                     <span class="hljs-comment"># Libraries files</span>
+│   ├── dpfj.dll            <span class="hljs-comment"># DPFJ library</span>
+│   ├── dpfpdd.dll          <span class="hljs-comment"># DPFPDD library</span>
+│   └── <span class="hljs-string">...</span>                 <span class="hljs-comment"># etc.</span>
+└── <span class="hljs-string">...</span></code></pre></li>
+					<li><p>If you want to keep the libraries files in another place, when load the library, will need provide the path of the libraries.</p>
+						<ul>
+							<li>Example:<pre><code class="language-js">      <span class="hljs-comment">// You just need to specific the path if the libs are not in a 'bin' folder at root.</span>
+      uareu.loadLibs(<span class="hljs-string">'src/libs/dpfpdd.dll'</span>, <span class="hljs-string">'src/libs/dpfj.dll'</span>)
+          .then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> {
+              <span class="hljs-built_in">console</span>.log(res);
+          })
+          .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {<span class="hljs-keyword">throw</span> err;});</code></pre>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>Just need to invoke:</p>
+				<pre><code class="language-bash">$ npm install uareu-node</code></pre>
+				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+					<h2>Examples</h2>
+				</a>
+				<p>You can find this example inside the &#39;example&#39; folder, and run it invoking:</p>
+				<pre><code class="language-bash">$ node example/index.js</code></pre>
+				<p>Code:</p>
+				<pre><code class="language-js">    <span class="hljs-keyword">const</span> { UareU, CONSTANTS } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'uareu-node'</span>); <span class="hljs-comment">// Import</span>
+    <span class="hljs-keyword">const</span> uareu = UareU.getInstance(); <span class="hljs-comment">// Get a unique instance of library handler.</span>
+    <span class="hljs-keyword">let</span> reader; <span class="hljs-comment">// Create a variable to keep the reader handle after 'open' the device.</span>
+
+    <span class="hljs-comment">// Probably the code below will also work for you.</span>
+    uareu.loadLibs() <span class="hljs-comment">// Load libs</span>
+        .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> uareu.dpfpddInit()) <span class="hljs-comment">// Init libs</span>
+        .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> uareu.dpfpddQueryDevices()) <span class="hljs-comment">// Search reader devices connected</span>
+        .then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> uareu.dpfpddOpen(res.devicesList[<span class="hljs-number">0</span>])}) <span class="hljs-comment">// 'Open' the reader device, it's needed for use others functions like: dpfpddCaptureAsync</span>
+        .then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> { <span class="hljs-keyword">if</span> (res) reader = res }) <span class="hljs-comment">// Set reader variable</span>
+        .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> { <span class="hljs-keyword">throw</span> err; });
+
+    <span class="hljs-comment">// After this initial configuration you can create some functions to capture a fingerprint, identify it, compare it and etc...</span>
+    <span class="hljs-comment">// Note: Identify and Compare are different, the main diference between it are: - Compare only compares two fingerprints;  - Identify compares a fingerprint against a list of fingerprints;</span>
+
+    uareu.dpfpddCaptureAsync(reader, CONSTANTS.DPFPDD_IMAGE_FMT.DPFPDD_IMG_FMT_ANSI381, CONSTANTS.DPFPDD_IMAGE_PROC.DPFPDD_IMG_PROC_DEFAULT, (data, dataSize) =&gt; {
+        <span class="hljs-comment">// Here you receive the data of a fingerprint image data (FID)</span>
+        <span class="hljs-comment">// Before compare it, you need to generate a fingerprint minutie data (FMD)</span>
+        uareu.dpfjCreateFmdFromFid(data, CONSTANTS.DPFJ_FMD_FORMAT.DPFJ_FMD_ANSI_378_2004)
+        .then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> {
+            <span class="hljs-comment">// Here you receive the FMD and then you can compare it, save it to compare with the next fingerprint, identify it with a database, etc...</span>
+            <span class="hljs-keyword">return</span> uareu.dpfjIdentify(res, [FMD LIST]);
+        })
+        .then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> {
+            <span class="hljs-comment">// Finger was identified or not? The answer you get here.</span>
+        })
+        .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(err));
+    });</code></pre>
+				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+					<h2>Contributing</h2>
+				</a>
+				<p>One of the problems that we have already identified, but we have not been able to find a solution is the fact that nodejs stops running a few times when removing and placing the finger very quickly on the reader. Can you help us?
+				Any help is welcome, open a issue, make a pull request, send me a email: <a href="mailto:&#108;&#x75;&#x63;&#97;&#115;&#102;&#x65;&#x6c;&#105;&#x70;&#x65;&#x63;&#100;&#109;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;">&#108;&#x75;&#x63;&#97;&#115;&#102;&#x65;&#x6c;&#105;&#x70;&#x65;&#x63;&#100;&#109;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;</a>.</p>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>MIT License. See the <code>LICENSE</code> file.</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_index_.html">&quot;index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_dll_dll_handler_.html">&quot;modules/handlers/dll/dll.handler&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_dll_dll_interface_.html">&quot;modules/handlers/dll/dll.interface&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_error_error_constants_.html">&quot;modules/handlers/error/error.constants&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_error_error_handler_.html">&quot;modules/handlers/error/error.handler&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_error_error_interface_.html">&quot;modules/handlers/error/error.interface&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_array_array_handler_.html">&quot;modules/handlers/types/array/array.handler&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_array_array_interface_.html">&quot;modules/handlers/types/array/array.interface&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_constant_constant_handler_.html">&quot;modules/handlers/types/constant/constant.handler&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_constant_constant_interface_.html">&quot;modules/handlers/types/constant/constant.interface&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_constant_constant_utils_.html">&quot;modules/handlers/types/constant/constant.utils&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_handlers_types_struct_struct_handler_.html">&quot;modules/handlers/types/struct/struct.handler&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_index_.html">&quot;modules/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_modules_interfaces_uareu_interfaces_.html">&quot;modules/interfaces/uareu.interfaces&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
