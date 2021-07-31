@@ -1,4 +1,4 @@
-import { DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_PRIORITY_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE, DPFJ_FID_FORMAT_TYPE } from './../handlers/types/constant/constant.handler';
+import { DPFJ_ENGINE_TYPE_TYPE, DPFJ_FID_FORMAT_TYPE, DPFJ_FMD_FORMAT_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFPDD_PRIORITY_TYPE } from './../handlers/types/constant/constant.handler';
 
 export interface IdentifyResult {
     index: number | string;
@@ -139,7 +139,7 @@ export interface DpfpddDevCapsStruct {
     hasCalibration: number,
     pivCompliant: number,
     resolutionCnt: number,
-    resolutions: number[]
+    resolutions: number
 };
 
 export interface DpfppdGetDeviceCapabilitiesStruct extends BaseResultStruct {
@@ -152,8 +152,8 @@ export interface DpfppdGetDeviceCapabilitiesFunc {
 
 export interface DpfpddCaptureParamStruct {
     size: number;
-    imageFmt: string;
-    imageProc: string;
+    imageFmt: number | string;
+    imageProc: number | string;
     imageRes: number;
 };
 
@@ -168,7 +168,7 @@ export interface DpfpddImageInfoStruct {
 export interface DpfpddCaptureResultStruct {
     size: number;
     success: number;
-    quality: string;
+    quality: number | string;
     score: number;
     info: DpfpddImageInfoStruct;
 };
@@ -193,7 +193,7 @@ export interface DpfpddCaptureCallbackData0 {
     captureParm: DpfpddCaptureParamStruct;
     captureResult: DpfpddCaptureResultStruct;
     imageSize: number;
-    imageData: Buffer;
+    imageData: string | Buffer;
     data: any;
 }
 
@@ -454,11 +454,11 @@ export interface DpfjGetFidViewOffsetFunc {
 
 export interface DpfjFidViewParamsStruct {
     dataLength: number;
-    fingerPosition: string;
+    fingerPosition: number;
     viewCnt: number;
     viewNumber: number;
     quality: number;
-    impressionType: string;
+    impressionType: number;
     width: number;
     height: number;
     view_data: any;
@@ -528,9 +528,9 @@ export interface DpfjGetFmdViewOffsetFunc {
 }
 
 export interface DpfjFmdViewParamsStruct {
-    fingerPosition: string;
+    fingerPosition: number;
     viewNumber: number;
-    impressionType: string;
+    impressionType: number;
     quality: number;
     minutiaCnt: number;
     extBlockLength: number;

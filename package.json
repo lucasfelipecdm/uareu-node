@@ -1,6 +1,6 @@
 {
   "name": "uareu-node",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A nodejs library to communicate with DigitalPersona 4500 biometric.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,9 +30,8 @@
   "license": "ISC",
   "devDependencies": {
     "@microsoft/tsdoc": "^0.12.20",
-    "@types/ffi-napi": "^2.4.1",
     "@types/jest": "^25.2.1",
-    "@types/ref-napi": "^1.4.0",
+    "@types/ref-struct-di": "^1.1.4",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
     "eslint": "^6.8.0",
@@ -46,9 +45,11 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "ffi-napi": "^3.0.1",
-    "ref-napi": "^1.5.2",
-    "ref-array-napi": "^1.2.1",
-    "ref-struct-napi": "^1.1.1"
+    "@types/ffi-napi": "^4.0.4",
+    "@types/ref-napi": "^3.0.4",
+    "ffi-napi": "^4.0.3",
+    "ref-array-di": "^1.2.2",
+    "ref-napi": "^3.0.3",
+    "ref-struct-di": "^1.1.1"
   }
 }

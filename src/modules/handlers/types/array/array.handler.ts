@@ -1,17 +1,19 @@
+import * as ArrayType from 'ref-array-di';
 import * as ref from 'ref-napi';
-import * as ArrayType from 'ref-array-napi';
-import { CharArray, UCharArray, IntArray, UIntArray, GenericArrayFrom } from './array.interface';
+import { CharArray, GenericArrayFrom, IntArray, UCharArray, UIntArray } from './array.interface';
 
-export const charArray: CharArray = (length: number) => ArrayType(ref.types.char, length);
+const Array = ArrayType(ref);
 
-export const uCharArray: UCharArray = (length: number) => ArrayType(ref.types.uchar, length);
+export const charArray: CharArray = (length: number) => Array(ref.types.char, length);
 
-export const intArray: IntArray = (length: number) => ArrayType(ref.types.int, length);
+export const uCharArray: UCharArray = (length: number) => Array(ref.types.uchar, length);
 
-export const uIntArray: UIntArray = (length: number) => ArrayType(ref.types.uint, length);
+export const intArray: IntArray = (length: number) => Array(ref.types.int, length);
+
+export const uIntArray: UIntArray = (length: number) => Array(ref.types.uint, length);
 
 export const genericArrayFrom: GenericArrayFrom = (type: any, length: number) => {
-    const arrayType = ArrayType(type);
+    const arrayType = Array(type);
     const array = new arrayType(length);
 
     return array.buffer;

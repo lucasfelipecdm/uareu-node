@@ -76,7 +76,10 @@ const identifyCallback = (data) => {
                 initialQuest();
             }
         })
-        .catch((err) => console.log(err));
+        .catch(async (err) => {
+            console.log(err);
+            process.exit(0);
+        });
 };
 
 const compareCallback = (data) => {
@@ -96,7 +99,10 @@ const compareCallback = (data) => {
                 initialQuest();
             }
         })
-        .catch((err) => console.log(err));
+        .catch(async (err) => {
+            console.log(err);
+            process.exit(0);
+        });
 };
 
 const identifyOrCompare = async (type) => {
@@ -107,4 +113,7 @@ const identifyOrCompare = async (type) => {
 
 init()
     .then(() => initialQuest())
-    .catch((err) => console.log(err));
+    .catch(async (err) => {
+        console.log(err);
+        process.exit(0);
+    });

@@ -1,14 +1,15 @@
-import * as ref from 'ref-napi';
 import * as ffi from 'ffi-napi';
-import * as ArrayType from 'ref-array-napi';
-
+import * as ArrayType from 'ref-array-di';
+import * as ref from 'ref-napi';
 import DllHandler from "./handlers/dll/dll.handler";
 import ErrorHandler from "./handlers/error/error.handler";
-import { dpfpdd_version, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_dev_caps, dpfpdd_capture_param, dpfpdd_capture_result, dpfj_version, dpfpdd_capture_callback_data_0, dpfj_candidate, dpfj_fid_record_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_fid_view_params } from "./handlers/types/struct/struct.handler";
 import { genericArrayFrom } from "./handlers/types/array/array.handler";
-import { DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_DEV, DPFPDD_PRIORITY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_PROC, DPFJ_ENGINE_TYPE, DPFJ_FMD_FORMAT, MAX_FMD_SIZE, DPFJ_PROBABILITY_ONE, DPFPDD_STATUS, DPFPDD_PRIORITY_TYPE, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_QUALITY, DPFPDD_LED_ID_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FMD_FORMAT_TYPE, DPFJ_FID_FORMAT_TYPE } from "./handlers/types/constant/constant.handler";
-import { CompareResult, IdentifyResult, UareUInterface, DpfppdVersionStruct, DpfppdInitStruct, DpfppdExitStruct, DpfppdQueryDevicesStruct, ReaderStruct, DpfppdOpenStruct, DpfppdOpenExtStruct, DpfppdCloseStruct, DpfppdGetDeviceStatusStruct, DpfppdGetDeviceCapabilitiesStruct, DpfpddCaptureStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackFunc, DpfpddCaptureCallbackData0, DpfpddCancelStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfpddGetStreamImageStruct, DpfpddResetStruct, DpfpddCalibrateStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddSetParameterStruct, DpfpddGetParameterStruct, DpfjVersionStruct, DpfjSelectEngineStruct, DpfjCreateFmdFromFidStruct, DpfjCompareStruct, DpfjIdentifyStruct, DpfjStartEnrollmentStruct, DpfjAddToEnrollmentStruct, DpfjCreateEnrollmentFmdStruct, DpfjFinishEnrollmentStruct, DpfjFmdConvertStruct, DpfjGetFidRecordParamsStruct, DpfjSetFidRecordParamsStruct, DpfjFidRecordParamsStruct, DpfjGetFidViewOffsetStruct, DpfjGetFidViewParamsStruct, DpfjFidViewParamsStruct, DpfjSetFidViewParamsStruct, DpfjGetFmdRecordParamsStruct, DpfjSetFmdRecordParamsStruct, DpfjFmdRecordParamsStruct, DpfjGetFmdViewOffsetStruct, DpfjGetFmdViewParamsStruct, DpfjFmdViewParamsStruct, DpfjSetFmdViewParamsStruct } from "./interfaces/uareu.interfaces";
+import { DPFJ_ENGINE_TYPE, DPFJ_ENGINE_TYPE_TYPE, DPFJ_FID_FORMAT_TYPE, DPFJ_FMD_FORMAT, DPFJ_FMD_FORMAT_TYPE, DPFJ_PROBABILITY_ONE, DPFPDD_DEV, DPFPDD_HW_MODALITY, DPFPDD_HW_TECHNOLOGY, DPFPDD_IMAGE_FMT, DPFPDD_IMAGE_FMT_TYPE, DPFPDD_IMAGE_PROC, DPFPDD_IMAGE_PROC_TYPE, DPFPDD_LED_CMD_TYPE_TYPE, DPFPDD_LED_ID_TYPE, DPFPDD_LED_MODE_TYPE_TYPE, DPFPDD_PARMID_TYPE, DPFPDD_PRIORITY, DPFPDD_PRIORITY_TYPE, DPFPDD_QUALITY, DPFPDD_STATUS, MAX_FMD_SIZE } from "./handlers/types/constant/constant.handler";
 import keyByValue from './handlers/types/constant/constant.utils';
+import { dpfj_candidate, dpfj_fid_record_params, dpfj_fid_view_params, dpfj_fmd_record_params, dpfj_fmd_view_params, dpfj_version, dpfpdd_capture_callback_data_0, dpfpdd_capture_param, dpfpdd_capture_result, dpfpdd_dev_caps, dpfpdd_dev_info, dpfpdd_dev_status, dpfpdd_version } from "./handlers/types/struct/struct.handler";
+import { DpfjAddToEnrollmentStruct, DpfjCompareStruct, DpfjCreateEnrollmentFmdStruct, DpfjCreateFmdFromFidStruct, DpfjFidRecordParamsStruct, DpfjFidViewParamsStruct, DpfjFinishEnrollmentStruct, DpfjFmdConvertStruct, DpfjFmdRecordParamsStruct, DpfjFmdViewParamsStruct, DpfjGetFidRecordParamsStruct, DpfjGetFidViewOffsetStruct, DpfjGetFidViewParamsStruct, DpfjGetFmdRecordParamsStruct, DpfjGetFmdViewOffsetStruct, DpfjGetFmdViewParamsStruct, DpfjIdentifyStruct, DpfjSelectEngineStruct, DpfjSetFidRecordParamsStruct, DpfjSetFidViewParamsStruct, DpfjSetFmdRecordParamsStruct, DpfjSetFmdViewParamsStruct, DpfjStartEnrollmentStruct, DpfjVersionStruct, DpfpddCalibrateStruct, DpfpddCancelStruct, DpfpddCaptureAsyncStruct, DpfpddCaptureCallbackData0, DpfpddCaptureCallbackFunc, DpfpddCaptureStruct, DpfpddGetParameterStruct, DpfpddGetStreamImageStruct, DpfpddLedConfigStruct, DpfpddLedCtrlStruct, DpfpddResetStruct, DpfpddSetParameterStruct, DpfpddStartStreamStruct, DpfpddStopStreamStruct, DpfppdCloseStruct, DpfppdExitStruct, DpfppdGetDeviceCapabilitiesStruct, DpfppdGetDeviceStatusStruct, DpfppdInitStruct, DpfppdOpenExtStruct, DpfppdOpenStruct, DpfppdQueryDevicesStruct, DpfppdVersionStruct, ReaderStruct, UareUInterface } from "./interfaces/uareu.interfaces";
+
+const Array = ArrayType(ref);
 
 let captureCallback: any;
 export default class UareU implements UareUInterface {
@@ -125,7 +126,7 @@ export default class UareU implements UareUInterface {
                             minor: device.ver.fw_ver.minor,
                             maintenance: device.ver.fw_ver.maintenance
                         },
-                        bcdVer: device.ver.bcd_ver
+                        bcdVer: device.ver.bcd_rev
                     },
                     modality: keyByValue(DPFPDD_HW_MODALITY, device.modality)!,
                     technology: keyByValue(DPFPDD_HW_TECHNOLOGY, device.modality)!,
@@ -212,7 +213,26 @@ export default class UareU implements UareUInterface {
         const devCaps = new dpfpdd_dev_caps;
         const res = UareU.dpfpdd.dpfpdd_get_device_capabilities(ref.deref(readerHandle), devCaps.ref());
         if (res === 0) {
-            resolve(devCaps);
+            const resObj = {
+                callbackRet: res,
+                readableRet: 'Reader capabilities obtained.',
+                deviceCaps: {
+                    size: devCaps.size,
+                    canCaptureImage: devCaps.can_capture_image,
+                    canStreamImage: devCaps.can_stream_image,
+                    canExtractFeatures: devCaps.can_extract_features,
+                    canMatch: devCaps.can_match,
+                    canIdentify: devCaps.can_identify,
+                    hasFpStorage: devCaps.has_fp_storage,
+                    indicatorType: devCaps.indicator_type,
+                    hasPwrMgmt: devCaps.has_pwr_mgmt,
+                    hasCalibration: devCaps.has_calibration,
+                    pivCompliant: devCaps.piv_compliant,
+                    resolutionCnt: devCaps.resolution_cnt,
+                    resolutions: devCaps.resolutions.buffer.readUIntLE(0, ref.types.uint.size)
+                }
+            }
+            resolve(resObj);
         } else {
             const errorCode = res.toString(16).slice(-3);
             if (errorCode === '00d') {
@@ -612,8 +632,8 @@ export default class UareU implements UareUInterface {
     });
 
     public dpfjIdentify = (fmd: DpfjCreateFmdFromFidStruct, fmdList: DpfjCreateFmdFromFidStruct[]) => new Promise<DpfjIdentifyStruct>((resolve, reject) => {
-        const ucharArray = ArrayType('uchar *');
-        const uintArray = ArrayType(ref.types.uint);
+        const ucharArray = Array('uchar *');
+        const uintArray = Array(ref.types.uint);
         const fmdListPointer = new ucharArray(fmdList.length);
         const fmdListSizePointer = new uintArray(fmdList.length);
         fmdList.forEach((fmdObj, index) => {
@@ -789,7 +809,7 @@ export default class UareU implements UareUInterface {
         paramsBuffer.scan_res = params.scanRes;
         paramsBuffer.image_res = params.imageRes;
         paramsBuffer.bpp = params.bpp;
-        paramsBuffer.compressio = params.compression;
+        paramsBuffer.compression = params.compression;
         UareU.dpfj.dpfj_set_fid_record_params(paramsBuffer.ref(), fidType, captureData.data.image_data);
         const resObj = {
             callbackRet: 0,
@@ -819,7 +839,7 @@ export default class UareU implements UareUInterface {
                 fingerPosition: params.finger_position,
                 viewCnt: params.view_cnt,
                 viewNumber: params.view_number,
-                quality: params.number,
+                quality: params.quality,
                 impressionType: params.impression_type,
                 width: params.width,
                 height: params.height,
@@ -835,11 +855,11 @@ export default class UareU implements UareUInterface {
         paramsBuffer.finger_position = params.fingerPosition;
         paramsBuffer.view_cnt = params.viewCnt;
         paramsBuffer.view_number = params.viewNumber;
-        paramsBuffer.number = params.quality;
+        paramsBuffer.quality = params.quality;
         paramsBuffer.impression_type = params.impressionType;
         paramsBuffer.width = params.width;
         paramsBuffer.height = params.height;
-        paramsBuffer.view_dat = params.view_data;
+        paramsBuffer.view_data = params.view_data;
         UareU.dpfj.dpfj_set_fid_view_params(paramsBuffer, fidView);
         const resObj = {
             callbackRet: 0,
